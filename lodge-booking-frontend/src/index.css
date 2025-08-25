@@ -1,4 +1,6 @@
-/* General reset */
+/* ===========================
+   General Reset & Base Styles
+=========================== */
 body, html, #root {
   margin: 0;
   padding: 0;
@@ -8,7 +10,9 @@ body, html, #root {
   box-sizing: border-box;
 }
 
-/* Card container */
+/* ===========================
+   Card & Logo
+=========================== */
 .card {
   background: #fff;
   border-radius: 1.5rem;
@@ -22,13 +26,14 @@ body, html, #root {
   align-items: center;
 }
 
-/* Logo */
 .logo {
   height: 80px;
   margin-bottom: 20px;
 }
 
-/* Form */
+/* ===========================
+   Form & Inputs
+=========================== */
 .form {
   width: 100%;
   display: flex;
@@ -36,16 +41,41 @@ body, html, #root {
   gap: 15px;
 }
 
-.form input {
+.form input,
+.form select {
   width: 100%;
   padding: 12px;
   border-radius: 0.75rem;
   border: 1px solid #ddd;
+  font-family: inherit;
+  font-size: 1rem;
 }
 
-.form input:focus {
+.form input:focus,
+.form select:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+  outline: none;
+}
+
+/* Select custom arrow */
+.form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23667eea' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.form input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #667eea;
+  cursor: pointer;
 }
 
 .form button {
@@ -65,7 +95,9 @@ body, html, #root {
   transform: translateY(-2px);
 }
 
-/* Links */
+/* ===========================
+   Links
+=========================== */
 .links {
   margin-top: 15px;
   display: flex;
@@ -82,41 +114,94 @@ body, html, #root {
   text-decoration: underline;
 }
 
-/* PopMessage */
-.pop-card {
+/* ===========================
+   PopCards & Modals
+=========================== */
+.pop-card, .modal-card {
   background: #fff;
   border-radius: 1.5rem;
-  padding: 1.5rem 2rem;
-  max-width: 350px;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
   text-align: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  animation: fadeInScale 0.25s ease forwards;
-  z-index: 50;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 100000;
 }
 
-@keyframes fadeInScale {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.pop-card {
+  max-width: 350px;
+}
+
+.pop-card.show, .modal-card.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.pop-card button, .modal-card button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
 }
 
 .pop-card button {
-  margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
-  border-radius: 1rem;
   background: #b7ea66;
   color: #fff;
-  font-weight: 600;
-  cursor: pointer;
 }
 
-.pop-card button:hover {
-  background: #5a67d8;
+.pop-card button:hover, .modal-card button:hover {
+  background-color: #5a67d8;
 }
-/* Full-screen overlay */
+.admin-rooms-page {
+  padding-bottom: 100px; /* gives space to scroll below last card */
+}
+/* Modal content scroll fix */
+/* Modal content scroll fix */
+.modal-card,
+.modal form {
+  max-height: 90vh;     /* never exceed screen */
+  overflow-y: auto;     /* scroll inside modal */
+  padding-bottom: 5rem; /* space at bottom */
+}
+
+/* Sticky footer (Save/Cancel) */
+.modal-card .actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+
+.modal-card p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+.modal-card .actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -127,7 +212,7 @@ body, html, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999; /* ensure it's above everything */
+  z-index: 99999;
   opacity: 0;
   transition: opacity 0.25s ease;
 }
@@ -135,43 +220,501 @@ body, html, #root {
 .modal-overlay.show {
   opacity: 1;
 }
-
-.modal-card {
-  background: #fff;
-  border-radius: 2rem;
-  padding: 2rem;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  transform: scale(0.9);
-  opacity: 0;
-  transition: all 0.25s ease;
-  z-index: 100000;
+/* For room thumbnails */
+.room-image-container {
+  width: 100px;
+  height: 100px;
 }
 
-.modal-card.show {
-  transform: scale(1);
-  opacity: 1;
+/* For modal image preview (bigger but not too big) */
+.modal-card .preview-image-container {
+  width: 100%;
+  max-height: 200px;
+  margin: 1rem 0;
+}
+
+.modal-card .preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+/* ===========================
+   Layout: Sidebar & AppBar
+=========================== */
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: visible;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #f8fafc;
+  width: 16rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  padding: 1rem;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  /*transform: translateX(-100%);*/
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+  transform: translateX(-100%);
+  z-index: 20;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 1rem;
+}
+
+.sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.sidebar ul li a svg {
+  width: 24px !important;
+  height: 24px !important;
+  flex-shrink: 0;
 }
 
 
-.modal-card p {
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-  color: #333;
+.sidebar ul li a:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+  transform: translateX(4px);
 }
 
-.modal-card button {
-  padding: 0.6rem 1.5rem;
-  border-radius: 1rem;
+.sidebar ul li a.active {
   background-color: #667eea;
   color: #fff;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: background 0.2s;
+  box-shadow: 0 4px 10px rgba(102,126,234,0.4);
 }
 
-.modal-card button:hover {
-  background-color: #5a67d8;
+/* AppBar */
+.appbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;  
+  padding-left: 0.5rem; /* mobile */
+  padding-right: 0.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #f9fdff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 60;
+}
+
+.appbar .logo {
+  height: 2.5rem;
+}
+
+
+.appbar button {
+  background: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem;       /* bigger hit area */
+  border-radius: 0.5rem;
+  display: flex;           /* center icon inside button */
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+
+.appbar button:hover {
+  background-color: #13eb5b; /* light hover effect */
+  transform: scale(1.1);      /* slightly bigger on hover */
+}
+.hamburger-btn {
+  background-color: #fff;
+  color: #1f2937;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.2s, transform 0.2s;
+  z-index: 9999; /* always on top */
+}
+
+.hamburger-btn:hover {
+  background-color: #e5e7eb; /* light hover effect */
+  transform: scale(1.1);
+}
+
+.dark .hamburger-btn {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  box-shadow: 0 2px 6px rgba(255,255,255,0.1);
+}
+
+.dark .hamburger-btn:hover {
+  background-color: #374151; /* dark hover effect */
+  transform: scale(1.1);
+}
+.room-card.booked {
+  opacity: 0.7;
+}
+
+.room-card .room-book-btn[disabled] {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
+
+/* ===========================
+   Main Content
+=========================== */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+  padding-top: 6rem;
+  padding-left: 1rem; /* small padding from left */
+  padding-right: 1rem;
+  background-color: #f1f5f9;
+  min-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 150px;
+}
+
+.main-content.sidebar-open {
+  margin-left: 16rem;
+}
+
+/* Scrollbar */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0,0,0,0.4);
+}
+
+/* ===========================
+   Dark Mode
+=========================== */
+.dark .sidebar {
+  background-color: #1f2937;
+}
+
+.dark .sidebar ul li a {
+  color: #f3f4f6;
+}
+
+.dark .sidebar ul li a:hover {
+  background-color: #374151;
+}
+
+.dark .sidebar ul li a.active {
+  background-color: #667eea;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(102,126,234,0.4);
+}
+
+.dark .appbar {
+  background-color: #f7f8fa;
+  color: #f3f4f6;
+}
+.appbar button:hover svg {
+  color: #1d4ed8 !important; /* icon turns blue on hover */
+}
+
+.dark .appbar button:hover svg {
+  color: #f59e0b !important; /* icon turns amber in dark mode */
+}
+
+
+.dark .appbar button:hover {
+  background-color: #f7f4f1;
+}
+
+.dark .main-content {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+/* RoomCard.css */
+.room-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.2s;
+}
+
+.room-card:hover {
+  transform: scale(1.05);
+}
+
+.room-image-container {
+  width: 80px;          /* Desktop thumbnail size */
+  height: 80px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.room-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.room-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+}
+
+.room-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.room-type {
+  font-size: 14px;
+  color: #555;
+}
+
+.room-price {
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.room-description {
+  font-size: 13px;
+  color: #777;
+  margin-top: 4px;
+}
+
+.room-book-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.room-book-btn:hover {
+  background-color: #1e40af;
+}
+/* Shared room image container */
+
+.preview-image-container {
+  width: 100px;   /* fixed width */
+  height: 100px;  /* fixed height */
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f3f3;
+}
+
+/* Image inside container */
+.room-image,
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* keeps proportions without stretching */
+  border-radius: 8px;
+}
+/* Dark mode AppBar */
+.dark .appbar {
+  background-color: #1f2937; /* dark gray */
+  color: #f3f4f6;            /* light text */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.dark .appbar .logo {
+  filter: brightness(0) invert(1); /* if you want logo visible on dark bg */
+}
+
+.dark .appbar button {
+  background-color: transparent;
+  color: #f3f4f6; /* default button/icon color in dark mode */
+}
+
+.dark .appbar button svg {
+  fill: #f3f4f6; /* make icons light */
+}
+
+.dark .appbar button:hover {
+  background-color: #374151; /* slightly lighter hover bg */
+  transform: scale(1.1);
+}
+
+.dark .appbar button:hover svg {
+  fill: #f59e0b; /* accent icon color on hover */
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .room-image-container {
+    width: 60px;
+    height: 60px;
+  }
+
+  .room-name {
+    font-size: 14px;
+  }
+
+  .room-type, .room-description {
+    font-size: 12px;
+  }
+
+  .room-price {
+    font-size: 13px;
+  }
+
+  .room-book-btn {
+    padding: 4px;
+  }
+}
+
+
+/* ===========================
+   Responsive
+=========================== */
+@media (min-width: 768px) {
+  /* Modal content scroll fix */
+/* Modal content scroll fix */
+.modal-card,
+.modal form {
+  max-height: 90vh;     /* never exceed screen */
+  overflow-y: auto;     /* scroll inside modal */
+  padding-bottom: 5rem; /* space at bottom */
+}
+
+/* Sticky footer (Save/Cancel) */
+.modal-card .actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+  .sidebar {
+    position: fixed; /* keep it fixed */
+    width: 16rem;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 16rem; /* content starts after sidebar */
+    padding-left: 3rem; /* small extra space */
+    padding-right: 3rem;
+    padding-top: 5rem;
+  }
+  .appbar {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  .appbar button {
+  background: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem;       /* bigger hit area */
+  border-radius: 0.5rem;
+  display: flex;           /* center icon inside button */
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.hamburger-btn {
+  background-color: #fff;
+  color: #1f2937;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.2s, transform 0.2s;
+  z-index: 9999; /* always on top */
+}
+
+.hamburger-btn:hover {
+  background-color: #e5e7eb; /* light hover effect */
+  transform: scale(1.1);
+}
+
+.dark .hamburger-btn {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  box-shadow: 0 2px 6px rgba(255,255,255,0.1);
+}
+
+.dark .hamburger-btn:hover {
+  background-color: #374151; /* dark hover effect */
+  transform: scale(1.1);
+}
+
+.appbar button:hover {
+  background-color: #13eb5b; /* light hover effect */
+  transform: scale(1.1);      /* slightly bigger on hover */
+}
 }

@@ -5,6 +5,7 @@ export interface Room {
   price: number;
   description: string;
   imageUrl: string;
+  status?: string;
 }
 
 export interface Service {
@@ -21,12 +22,33 @@ export interface BookingService {
 
 export interface Booking {
   id: number;
-  room: Room;
   startDate: string;
   endDate: string;
   status: string;
-  services: BookingService[]; 
+  room?: {
+    id: number;
+    name: string;
+    type: string;
+    price: number;
+    description: string;
+  };
+  roomId: number; // ✅ Add this
+  services: {
+    id: number;
+    quantity: number;
+    service: {
+      id: number;
+      name: string;
+      price: number;
+    };
+  }[];
+
+  males?: number;
+  females?: number;
+  documentUrl?: string;
 }
+
+
 export interface AuthContextType {
   token: string | null;
   setToken: (token: string | null) => void;

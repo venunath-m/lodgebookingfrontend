@@ -1,0 +1,171 @@
+/* ------------------------------
+   Layout
+------------------------------ */
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16rem;
+  height: 100vh;
+  background: #f8fafc;
+  padding: 1rem;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 40;
+}
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0,0,0,0.4);
+}
+
+.logo-container {
+  display: flex;  
+  align-items: center;  
+  gap: 1rem; /* space between logo and button */
+}
+.logo {
+  max-width: 150px;
+  max-height: auto;
+}
+.logo-placeholder {
+  width: 120px;    /* same as original logo width */
+  height: 36px;    /* adjust according to your logo height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Menu */
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.menu li {
+  margin-bottom: 1rem;
+}
+.menu li a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1f2937;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.menu li a.active,
+.menu li a:hover {
+  background: #667eea;
+  color: white;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Main content */
+.main-content {
+  margin-left: 16rem;
+  flex: 1;
+  overflow-y: auto;
+  background: #f1f5f9;
+  transition: margin-left 0.3s ease;
+  padding-top: 4.5rem;
+}
+.main-content.sidebar-closed {
+  margin-left: 0;
+}
+
+/* AppBar */
+.appbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 0 1rem;
+  z-index: 50;
+}
+
+.appbar-left {
+  display: flex;
+  align-items: center;
+}
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;  
+  display: none; /* hidden by default, shown on mobile */
+}
+.theme-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sun { color: #facc15; }
+.moon { color: #1f2937; }
+
+/* Page content padding */
+.page-content {
+  padding: 1rem 2rem;
+}
+
+/* ------------------------------
+   Dark Mode
+------------------------------ */
+.dark .sidebar { background: #1f2937; }
+.dark .main-content { background: #111827; color: #f3f4f6; }
+.dark .appbar { background: #1f2937; color: #f3f4f6; }
+.dark .menu li a { color: #f3f4f6; }
+.dark .menu li a.active, .dark .menu li a:hover { background: #667eea; color: #fff; }
+
+/* ------------------------------
+   Responsive
+------------------------------ */
+@media (max-width: 768px) {
+  .main-content { margin-left: 0; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .logo-container {
+    flex-direction: column; /* stack logo and hamburger vertically */
+    align-items: center;
+    gap: 0.25rem; /* smaller gap for neat look */
+  }
+
+  .hamburger-btn {
+    display: block; /* show only on mobile */
+  }
+  .theme-btn {
+    font-size: 0.9rem;
+  }
+}
