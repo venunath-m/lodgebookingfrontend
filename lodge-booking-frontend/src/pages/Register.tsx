@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import PopMessage from "../components/PopMessage";
-import CenteredLayout from "../components/CenteredLayout"; 
+import Layout from "../components/DashboardLayout"; 
 import logo from '../assets/logo.png';
 import "./Register.css";
 import { useAuth } from "../context/useAuth";
@@ -53,7 +53,7 @@ export default function Register() {
   };
 
   return (
-    <CenteredLayout>
+    <Layout>
       {/* Floating background shapes */}
       <div className="shape-circle large"></div>
       <div className="shape-circle medium"></div>
@@ -95,6 +95,6 @@ export default function Register() {
       </div>
 
       {popMessage && <PopMessage type={popType} message={popMessage} onClose={handlePopClose} />}
-    </CenteredLayout>
+    </Layout>
   );
 }
