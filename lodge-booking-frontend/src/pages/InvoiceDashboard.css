@@ -1,93 +1,232 @@
+/* ===============================
+   Dashboard Container
+=============================== */
 .dashboard-container {
-  padding: 20px;
-  max-width: 1000px;
-  margin: auto;
+  background: #f9fafb;
+  color: #1f2937;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
 }
 
-.actions {
-  margin-bottom: 10px;
+.dark .dashboard-container {
+  background: #1f2937;
+  color: #f3f4f6;
 }
 
-.actions button {
-  margin-right: 10px;
-  padding: 6px 12px;
+/* ===============================
+   Summary Panels - Mobile Cards
+=============================== */
+.summary-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
+.summary-section {
+  background: linear-gradient(135deg, #667eea, #5a67d8);
+  color: white;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.summary-section p {
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+}
+
+/* Tablet / Large Mobile */
+@media (min-width: 480px) {
+  .summary-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .summary-panel {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .summary-section {
+    background: white;
+    color: #1f2937;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 1rem;
+  }
+
+  .summary-section h3 {
+    color: #374151;
+  }
+}
+
+/* ===============================
+   Filters - Mobile Friendly
+=============================== */
 .filters {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
-.filters input {
-  margin-right: 10px;
-  padding: 4px 8px;
+.filters input,
+.filters button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
+.filters input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102,126,234,0.3);
+}
+
+.filters button {
+  background: #667eea;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.filters button:hover {
+  background: #5a67d8;
+}
+
+/* Tablet */
+@media (min-width: 480px) {
+  .filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .filters input,
+  .filters button {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
+
+/* ===============================
+   Invoice Table - Responsive Scroll
+=============================== */
 .invoice-table {
   width: 100%;
   border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
 }
 
 .invoice-table th,
 .invoice-table td {
-  border: 1px solid #ccc;
-  padding: 6px;
-  text-align: center;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: left;
 }
 
-.deleted {
-  background-color: #f8d7da;
-}
-
-.modal {
-  position: fixed;
+.invoice-table th {
+  background: #667eea;
+  color: white;
+  font-weight: 600;
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
 }
 
+.invoice-table tbody tr {
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  margin-bottom: 0.25rem;
+  display: table-row;
+}
+
+.invoice-table tbody tr.deleted {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.invoice-table button {
+  background: #5a67d8;
+  color: white;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.invoice-table button:hover {
+  background: #4c51bf;
+}
+
+/* ===============================
+   Modal Adjustments
+=============================== */
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
+  width: 95%;
   max-width: 800px;
-  position: relative;
+  max-height: 95%;
+  padding: 1.5rem;
+  overflow-y: auto;
+  border-radius: 1rem;
 }
 
-.close-btn {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-.summary-panel {
+/* ===============================
+   Actions Buttons
+=============================== */
+.actions {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 8px;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.summary-section {
-  flex: 1 1 30%;
-  margin: 5px;
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 6px;
-  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+.actions button {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: #667eea;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.summary-section h3 {
-  margin-top: 0;
+.actions button:hover {
+  background: #5a67d8;
+}
+
+/* ===============================
+   Touch-friendly adjustments
+=============================== */
+input, button {
+  min-height: 44px;
+}
+
+/* ===============================
+   Scroll hint for mobile table
+=============================== */
+.invoice-table::-webkit-scrollbar {
+  height: 6px;
+}
+
+.invoice-table::-webkit-scrollbar-thumb {
+  background: rgba(102,126,234,0.5);
+  border-radius: 3px;
 }

@@ -39,19 +39,33 @@
   background-color: rgba(0,0,0,0.4);
 }
 
+/* Logo */
 .logo-container {
-  flex-direction: column;
-  align-items: center;  
-  gap: 0.25rem; /* space between logo and button */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center horizontally */
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;     /* more padding for breathing space */
+  background: #1f2937;
+  border-radius: 8px;
+  height: auto;             /* let it grow with the logo */
+  min-height: 80px;         /* ensures enough vertical space */
+  width: 100%;              /* fill available space in sidebar/appbar-left */
+  box-sizing: border-box;
 }
+
+/* Logo itself */
 .logo {
-  max-width: 180px;  /* increase width */
-  height: auto;  
-  object-fit: contain;    /* maintain aspect ratio */
+  width: 100%;         /* fill container width */
+  max-width: 200px;    /* max width for desktop */
+  height: auto;        /* maintain aspect ratio */
+  object-fit: contain;
 }
+
+/* Placeholder if needed */
 .logo-placeholder {
-  width: 180px;    /* same as original logo width */
-  height: 54px;    /* adjust according to your logo height */
+  width: 180px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,6 +108,7 @@
   background: #f1f5f9;
   transition: margin-left 0.3s ease;
   padding-top: 4.5rem;
+  position: relative; /* for floating shapes */
 }
 .main-content.sidebar-closed {
   margin-left: 0;
@@ -112,48 +127,16 @@
   background: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   padding: 0 1rem;
-  z-index: 50;
+  z-index: 100;
 }
-
 .appbar-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
-/* Logo container stays transparent */
-/* Logo container */
-.appbar-left .logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  background: transparent; /* no white shade */
-  padding: 0;
-  border-radius: 0;
-}
-
-/* Logo */
-.appbar-left .logo {
-  max-width: 180px;
-  height: auto;
-  object-fit: contain;
-  transition: filter 0.3s ease;
-}
-
-/* Dark mode: invert logo colors if needed */
-.dark .appbar-left .logo {
-  filter: brightness(0) invert(1);
-}
-
-
-
-
-.hamburger-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;  
-  display: none; /* hidden by default, shown on mobile */
-}
+/* Hamburger & Theme buttons */
+.hamburger-btn,
 .theme-btn {
   background: transparent;
   border: none;
@@ -165,10 +148,21 @@
 .sun { color: #facc15; }
 .moon { color: #1f2937; }
 
-/* Page content padding */
+/* Page content */
 .page-content {
   padding: 1rem 2rem;
 }
+
+/* Floating shapes inside main content */
+.shape-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0; /* always behind logo/appbar */
+}
+.shape-circle.large { width: 200px; height: 200px; top: 50px; left: 50px; background: rgba(102, 126, 234, 0.2); }
+.shape-circle.medium { width: 150px; height: 150px; top: 200px; left: 200px; background: rgba(102, 126, 234, 0.15); }
+.shape-circle.small { width: 100px; height: 100px; top: 400px; left: 300px; background: rgba(102, 126, 234, 0.1); }
 
 /* ------------------------------
    Dark Mode
@@ -177,10 +171,14 @@
 .dark .main-content { background: #111827; color: #f3f4f6; }
 .dark .appbar { background: #1f2937; color: #f3f4f6; }
 .dark .menu li a { color: #f3f4f6; }
-.dark .menu li a.active, .dark .menu li a:hover { background: #667eea; color: #fff; }
+.dark .menu li a.active,
+.dark .menu li a:hover { background: #667eea; color: #fff; }
 
-/* Dark mode tweak if needed */
-
+/* ⚡ Logo stays the same in dark mode */
+.dark .logo {
+  filter: none !important;
+  mix-blend-mode: unset !important;
+}
 
 /* ------------------------------
    Responsive
@@ -189,18 +187,22 @@
   .main-content { margin-left: 0; }
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .logo-container {
-    flex-direction: column; /* stack logo and hamburger vertically */
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem; /* slightly more spacing */
-    padding-top: 0.5rem; /* optional for better vertical alignment */
-  }
 
-  .hamburger-btn {
-    display: block; /* show only on mobile */
+     .logo-container {
+    justify-content: flex-start;  /* align left on mobile */
+    padding: 0.25rem 0.5rem;
   }
-  .theme-btn {
-    font-size: 0.9rem;
+  .logo {
+    max-width: 150px; /* slightly smaller on mobile */
   }
+  .hamburger-btn { display: block; margin-top: 0; }
+  .theme-btn { font-size: 0.9rem; }
+  .appbar-left {
+  flex-direction: row;      
+  align-items: center;      /* vertically center logo & hamburger */
+  justify-content: flex-start;
+  gap: 0.5rem;             /* some space between logo & hamburger */
+}
+
+  
 }

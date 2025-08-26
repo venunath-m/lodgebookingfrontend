@@ -1,0 +1,115 @@
+/* ------------------------------
+   Floating Shapes
+------------------------------ */
+.shape-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float 15s ease-in-out infinite;
+  z-index: 0;
+}
+
+.shape-circle.large {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  top: -100px;
+  left: -150px;
+  animation-duration: 20s;
+}
+
+.shape-circle.medium {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  top: 200px;
+  right: -100px;
+  animation-duration: 25s;
+}
+
+.shape-circle.small {
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, #10b981, #14b8a6);
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-duration: 18s;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-20px) translateX(15px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+/* ------------------------------
+   Gradient Cards & Sections
+------------------------------ */
+.section-gradient {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+/* For dark mode */
+.dark .section-gradient {
+  background: linear-gradient(145deg, rgba(30,30,30,0.95), rgba(40,40,40,0.85));
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* ------------------------------
+   Floating/Glowing Cards
+------------------------------ */
+.card-floating {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-floating:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* ------------------------------
+   Highlight Glow (buttons or cards)
+------------------------------ */
+.highlight-glow {
+  border: 2px solid rgba(255,255,255,0.2);
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  color: white;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(102,126,234,0.5), 0 0 40px rgba(118,75,162,0.3);
+  transition: all 0.3s ease;
+}
+
+.highlight-glow:hover {
+  box-shadow: 0 0 25px rgba(102,126,234,0.8), 0 0 50px rgba(118,75,162,0.5);
+  transform: translateY(-5px);
+}
+
+/* ------------------------------
+   Buttons (optional glow)
+------------------------------ */
+.btn-glow {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 5px 15px rgba(102,126,234,0.4), 0 0 20px rgba(118,75,162,0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 8px 25px rgba(102,126,234,0.7), 0 0 40px rgba(118,75,162,0.5);
+  transform: translateY(-3px);
+}

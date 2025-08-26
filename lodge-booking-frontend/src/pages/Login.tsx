@@ -13,7 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [popMessage, setPopMessage] = useState<string | null>(null);
   const [popType, setPopType] = useState<"success" | "failed" | "info">("info");
-  const { setToken } = useAuth();
+  const { setToken ,setRole } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +30,9 @@ export default function Login() {
       });
 
       setToken(res.data.access_token);
+      setRole(res.data.role);
       localStorage.setItem("token", res.data.access_token);
+      localStorage.setItem("role", res.data.role);
       setPopMessage("Login successful!");
       setPopType("success"); // mark as success
     } catch (err: unknown) {
@@ -77,8 +79,7 @@ export default function Login() {
         </form>
 
         <div className="links">
-          <a href="/forgot-password">Forgot Password?</a>
-          <a href="/register">Sign Up</a>
+          <a href="/forgot-password">Forgot Password?</a>          
         </div>      
       </div>
 

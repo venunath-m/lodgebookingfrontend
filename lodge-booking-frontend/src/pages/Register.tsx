@@ -6,6 +6,8 @@ import API from "../api/axios";
 import PopMessage from "../components/PopMessage";
 import CenteredLayout from "../components/CenteredLayout"; 
 import logo from '../assets/logo.png';
+import "./Register.css";
+import { useAuth } from "../context/useAuth";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -18,7 +20,7 @@ export default function Register() {
 
   const featuresList = ["Booking", "Services", "Reports","LogOut","Backup & Restore","SignUp"];
   const navigate = useNavigate();
-
+  const { role: loggedInRole } = useAuth();
   const toggleFeature = (feature: string) => {
     setAllowedFeatures(prev =>
       prev.includes(feature) ? prev.filter(f => f !== feature) : [...prev, feature]
@@ -52,9 +54,15 @@ export default function Register() {
 
   return (
     <CenteredLayout>
-      <div className="card w-full max-w-md p-8 bg-white dark:bg-gray-900 shadow-xl rounded-2xl">
-        <img src={logo} alt="Branding Sparrow" className="logo mb-6 mx-auto h-16" />
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">Create Account</h2>
+      {/* Floating background shapes */}
+      <div className="shape-circle large"></div>
+      <div className="shape-circle medium"></div>
+      <div className="shape-circle small"></div>
+
+      {/* Card */}
+      <div className="card">
+        <img src={logo} alt="Branding Sparrow" className="logo mx-auto" />
+        <h2>Create Account</h2>
 
         <form onSubmit={handleSubmit} className="form flex flex-col gap-4">
           <input placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} className="input-field" />
@@ -66,25 +74,23 @@ export default function Register() {
             <option value="admin">Admin</option>
           </select>
 
-          {role === "user" && (
+          {loggedInRole === "admin" && role === "user" && (
             <div className="flex flex-col gap-2 mt-2">
-              <label className="font-semibold text-gray-700 dark:text-gray-300">Allowed Features:</label>
+              <label>Allowed Features:</label>
               {featuresList.map(f => (
                 <label key={f} className="flex items-center gap-2">
-                  <input type="checkbox" checked={allowedFeatures.includes(f)} onChange={() => toggleFeature(f)} className="accent-indigo-600" />
+                  <input type="checkbox" checked={allowedFeatures.includes(f)} onChange={() => toggleFeature(f)} />
                   {f}
                 </label>
               ))}
             </div>
           )}
 
-          <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md mt-4">
-            Register
-          </button>
+          <button type="submit">Register</button>
         </form>
 
-        <p className="text-sm text-gray-600 dark:text-gray-300 mt-4 text-center">
-          Already have an account? <a href="/login" className="text-indigo-600 hover:underline">Login</a>
+        <p className="text-sm text-center mt-4">
+          Already have an account? <a href="/login">Login</a>
         </p>
       </div>
 

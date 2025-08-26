@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import API from "../api/axios";
 import Layout from "../components/DashboardLayout";
 import { useAuth } from "../context/useAuth";
+import API from "../api/axios";
 import "./services.css";
 
 interface Room {
@@ -22,8 +22,8 @@ interface RoomService {
   name: string;
   price: number;
   quantity?: number;
-  startDate?: string; // Date of service
-  startTime?: string; // Time of service
+  startDate?: string;
+  startTime?: string;
 }
 
 const AssignServices: React.FC = () => {
@@ -36,62 +36,43 @@ const AssignServices: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<{ from?: string; to?: string }>({});
   const [newServiceId, setNewServiceId] = useState<number | null>(null);
 
-  // Fetch rooms
   useEffect(() => {
     if (!token) return;
-    const fetchRooms = async () => {
-      try {
-        const res = await API.get("/rooms", { headers: { Authorization: `Bearer ${token}` } });
-        setRooms(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Error fetching rooms:", err);
-      }
-    };
-    fetchRooms();
+    API.get("/rooms", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => setRooms(Array.isArray(res.data) ? res.data : []))
+      .catch(console.error);
   }, [token]);
 
-  // Fetch all services
   useEffect(() => {
     if (!token) return;
-    const fetchServices = async () => {
-      try {
-        const res = await API.get("/services", { headers: { Authorization: `Bearer ${token}` } });
-        setServices(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Error fetching services:", err);
-      }
-    };
-    fetchServices();
+    API.get("/services", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => setServices(Array.isArray(res.data) ? res.data : []))
+      .catch(console.error);
   }, [token]);
 
-  // Fetch assigned services
   const fetchAssignedServices = async (roomId: number) => {
     try {
       const res = await API.get(`/rooms/${roomId}/services`, { headers: { Authorization: `Bearer ${token}` } });
       setAssignedServices(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Error fetching assigned services:", err);
+      console.error(err);
       setAssignedServices([]);
     }
   };
 
-  // Assign a service
   const handleAssign = async () => {
     if (!selectedRoom || !newServiceId) return;
     try {
-      const formData = new URLSearchParams();
-      formData.append("serviceId", String(newServiceId));
-      await API.post(`/admin/rooms/${selectedRoom}/services`, formData, {
+      await API.post(`/admin/rooms/${selectedRoom}/services`, new URLSearchParams({ serviceId: String(newServiceId) }), {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchAssignedServices(selectedRoom);
       setNewServiceId(null);
     } catch (err) {
-      console.error("Error assigning service:", err);
+      console.error(err);
     }
   };
 
-  // Remove a service
   const handleRemove = async (serviceId: number) => {
     if (!selectedRoom) return;
     try {
@@ -100,7 +81,7 @@ const AssignServices: React.FC = () => {
       });
       fetchAssignedServices(selectedRoom);
     } catch (err) {
-      console.error("Error removing service:", err);
+      console.error(err);
     }
   };
 
@@ -115,7 +96,6 @@ const AssignServices: React.FC = () => {
       <div className="assign-services">
         <h2>Assign Services to Rooms</h2>
 
-        {/* Room Selector */}
         <div className="form-group">
           <label>Select Room</label>
           <select
@@ -135,7 +115,6 @@ const AssignServices: React.FC = () => {
           </select>
         </div>
 
-        {/* Date Filter */}
         <div className="form-group">
           <label>Filter by Date</label>
           <input
@@ -150,43 +129,43 @@ const AssignServices: React.FC = () => {
           />
         </div>
 
-        {/* Assigned Services Table */}
         {selectedRoom && (
-          <table className="services-table">
-            <thead>
-              <tr>
-                <th>Service</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredServices.length > 0 ? (
-                filteredServices.map((svc) => (
-                  <tr key={svc.serviceId}>
-                    <td>{svc.name}</td>
-                    <td>${svc.price}</td>
-                    <td>{svc.quantity || 1}</td>
-                    <td>{svc.startDate ? new Date(svc.startDate).toLocaleDateString() : "-"}</td>
-                    <td>{svc.startTime ? new Date(`1970-01-01T${svc.startTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}</td>
-                    <td>
-                      <button onClick={() => handleRemove(svc.serviceId)}>Delete</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table className="services-table">
+              <thead>
                 <tr>
-                  <td colSpan={6}>No services assigned</td>
+                  <th>Service</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredServices.length > 0 ? (
+                  filteredServices.map((svc) => (
+                    <tr key={svc.serviceId}>
+                      <td data-label="Service">{svc.name}</td>
+                      <td data-label="Price">${svc.price}</td>
+                      <td data-label="Quantity">{svc.quantity || 1}</td>
+                      <td data-label="Date">{svc.startDate ? new Date(svc.startDate).toLocaleDateString() : "-"}</td>
+                      <td data-label="Time">{svc.startTime ? new Date(`1970-01-01T${svc.startTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}</td>
+                      <td data-label="Actions">
+                        <button onClick={() => handleRemove(svc.serviceId)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6}>No services assigned</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
 
-        {/* Add New Service */}
         {selectedRoom && (
           <div className="form-group">
             <label>Add Service</label>

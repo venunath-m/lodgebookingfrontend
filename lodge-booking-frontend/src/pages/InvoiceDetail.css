@@ -1,0 +1,89 @@
+/* ===============================
+   Invoice Detail Container
+=============================== */
+.invoice-detail-container {
+  background: white;
+  color: #1f2937; /* dark text */
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.2);
+  transition: all 0.3s ease;
+}
+
+.invoice-detail-container:hover {
+  box-shadow: 0 12px 35px rgba(102,126,234,0.3);
+  transform: translateY(-3px);
+}
+
+/* Dark Mode */
+.dark .invoice-detail-container {
+  background: #1f2937;
+  color: #f3f4f6;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+}
+
+/* ===============================
+   Table Styles
+=============================== */
+.invoice-items-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  margin: 1rem 0;
+}
+
+.invoice-items-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: inherit; /* inherit container text color */
+}
+
+.invoice-items-table td {
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+}
+
+.invoice-items-table tbody tr {
+  background: #f9fafb; /* solid background */
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.invoice-items-table tbody tr:hover {
+  transform: translateY(-1px);
+}
+
+/* Dark Mode Table */
+.dark .invoice-items-table tbody tr {
+  background: #111827;
+  color: #f3f4f6;
+}
+
+/* ===============================
+   Headings & Text
+=============================== */
+h2, h3, p {
+  margin-bottom: 0.5rem;
+  color: inherit;
+}
+
+h3 {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* ===============================
+   Responsive
+=============================== */
+@media (max-width: 768px) {
+  .invoice-detail-container {
+    padding: 1rem;
+  }
+
+  .invoice-items-table th,
+  .invoice-items-table td {
+    padding: 0.25rem 0.5rem;
+  }
+}

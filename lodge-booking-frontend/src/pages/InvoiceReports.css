@@ -1,25 +1,62 @@
+/* ===============================
+   Invoice Reports Container
+=============================== */
 .invoice-reports-container {
-  padding: 20px;
-  max-width: 800px;
-  margin: auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
+  background: white; /* solid card */
+  color: #1f2937; /* dark text */
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.2);
+  transition: all 0.3s ease;
 }
 
+.invoice-reports-container:hover {
+  box-shadow: 0 12px 35px rgba(102,126,234,0.3);
+  transform: translateY(-3px);
+}
+
+/* Dark Mode */
+.dark .invoice-reports-container {
+  background: #1f2937;
+  color: #f3f4f6;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+}
+
+/* Headings */
 .invoice-reports-container h2 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
 .invoice-reports-container h3 {
   font-size: 1.5rem;
-  font-weight: bold;
-  margin-top: 15px;
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
+/* Paragraphs */
 .invoice-reports-container p {
-  margin: 8px 0;
-  font-size: 1rem;
+  font-size: 1.125rem;
+  margin: 0.25rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .invoice-reports-container {
+    padding: 1rem;
+  }
+
+  .invoice-reports-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .invoice-reports-container h3 {
+    font-size: 1.25rem;
+  }
+
+  .invoice-reports-container p {
+    font-size: 1rem;
+  }
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { SunIcon, MoonIcon, Bars3Icon } from "@heroicons/react/24/solid";
 import logo from "../assets/logo.png";
@@ -11,21 +12,26 @@ import {
   ArrowRightOnRectangleIcon,
   Cog6ToothIcon,
   DocumentPlusIcon,
-  PresentationChartBarIcon
+  PresentationChartBarIcon,
+  UserPlusIcon 
 } from "@heroicons/react/24/solid";
-import { NavLink,useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import "./NewFloatingStyles.css";
+import "../pages/DashboardLayout.css";
+import { useAuth } from "../context/useAuth";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
-import "../pages/DashboardLayout.css";
-import { useAuth } from "../context/useAuth";
+
 export default function DashboardLayout({ children }: LayoutProps) {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true); // dark by default
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-const navigate = useNavigate();
-const { setToken } = useAuth();
+
+  const navigate = useNavigate();
+  const { setToken } = useAuth();
+
   // Detect mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -34,124 +40,143 @@ const { setToken } = useAuth();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    localStorage.setItem("theme", !darkMode ? "dark" : "light");
+  };
+
+  // Logout
   const handleLogout = () => {
-     setToken(null); 
-  localStorage.removeItem("authToken"); // or any user/session key
-  sessionStorage.clear(); // optional
-  navigate("/login", { replace: true });
-};
+    setToken(null);
+    localStorage.removeItem("authToken");
+    sessionStorage.clear();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="layout">
         {/* Sidebar */}
         <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-          <div className="logo-container">
-             <div style={{ height: "4.5rem" }}></div>
-          </div>
+          <div style={{ height: "4.5rem" }}></div> 
+
           <ul className="menu">
             <li>
-              <NavLink to="/" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
                 <HomeIcon className="icon" /> Home
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/bookings" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/bookings" className={({ isActive }) => isActive ? "active" : ""}>
                 <CalendarIcon className="icon" /> Bookings
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/admin/rooms" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/admin/rooms" className={({ isActive }) => isActive ? "active" : ""}>
                 <ClipboardDocumentIcon className="icon" /> Rooms
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/admin/services" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/admin/services" className={({ isActive }) => isActive ? "active" : ""}>
                 <Cog6ToothIcon className="icon" /> Services
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/admin/assign-services" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/admin/assign-services" className={({ isActive }) => isActive ? "active" : ""}>
                 <ArrowPathIcon className="icon" /> Assign Services
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/reports" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/reports" className={({ isActive }) => isActive ? "active" : ""}>
                 <PresentationChartBarIcon className="icon" /> Reports
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/invoices" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/invoices" className={({ isActive }) => isActive ? "active" : ""}>
                 <ClipboardDocumentIcon className="icon" /> Invoices
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/invoices/create" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/invoices/create" className={({ isActive }) => isActive ? "active" : ""}>
                 <DocumentPlusIcon className="icon" /> Create Invoice
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/invoices/reports" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/invoices/reports" className={({ isActive }) => isActive ? "active" : ""}>
                 <ArchiveBoxIcon className="icon" /> Invoice Reports
               </NavLink>
             </li>
 
             <li>
-              <NavLink to="/invoices/dashboard" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/invoices/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
                 <PresentationChartBarIcon className="icon" /> Invoices Dashboard
               </NavLink>
             </li>
-
+              
             <li>
-              <NavLink to="/backup-restore" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/backup-restore" className={({ isActive }) => isActive ? "active" : ""}>
                 <ArrowPathIcon className="icon" /> Backup & Restore
               </NavLink>
             </li>
-
             <li>
-              <NavLink to="#" onClick={handleLogout} className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="/signup" className={({ isActive }) => isActive ? "active" : ""}>
+                <UserPlusIcon className="icon" /> Add User
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="#" onClick={handleLogout}>
                 <ArrowRightOnRectangleIcon className="icon" /> Logout
               </NavLink>
             </li>
           </ul>
-
         </aside>
 
         {/* Main Content */}
         <div className={`main-content ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+          {/* Floating shapes */}
+          <div className="shape-circle large"></div>
+          <div className="shape-circle medium"></div>
+          <div className="shape-circle small"></div>
+
           {/* AppBar */}
-          <header className="appbar">
-  <div className="appbar-left">
-    <div className="logo-container">
-      <img src={logo} alt="Logo" className="logo" />
-    </div>
-  </div>
+        <header className="appbar">
+          <div className="appbar-left">
+            <div className="logo-container">
+              <img src={logo} alt="Logo" className="logo" />
+            </div>
 
-  {isMobile && (
-    <button onClick={toggleSidebar} className="hamburger-btn">
-      <Bars3Icon className="icon" />
-    </button>
-  )}
+            {/* Hamburger button outside logo container */}
+            {isMobile && (
+              <button onClick={toggleSidebar} className="hamburger-btn">
+                <Bars3Icon className="icon" />
+              </button>
+            )}
+          </div>
 
-  <button onClick={() => setDarkMode(!darkMode)} className="theme-btn">
-    {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}
-    <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
-  </button>
-</header>
-
-
+          <button onClick={toggleDarkMode} className="theme-btn">
+            {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}            
+          </button>
+        </header>
 
 
           {/* Page content */}
-          <main className="page-content">{children}</main>
+          <main className="page-content">
+            <div className="section-gradient card-floating highlight-glow">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </div>

@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/DashboardLayout";
 import { useAuth } from "../context/useAuth";
-import "./services.css";
 import API from "../api/axios";
+import "./services.css";
 
 interface Service {
   id: number;
@@ -28,13 +28,10 @@ const ServicesAdmin: React.FC = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await API.get("/services", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // backend returns List[ServiceOut]
+      const res = await API.get("/services", { headers: { Authorization: `Bearer ${token}` } });
       setServices(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Error fetching services:", err);
+      console.error(err);
       setServices([]);
     } finally {
       setLoading(false);
@@ -46,44 +43,19 @@ const ServicesAdmin: React.FC = () => {
     if (!token) return;
 
     try {
-      let res;
-      if (editId !== null) {
-        // PUT /admin/services/{id}
-        res = await API.put(`/admin/services/${editId}`, { name, price }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        // POST /admin/services
-        res = await API.post("/admin/services", { name, price }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
+      const res = editId !== null
+        ? await API.put(`/admin/services/${editId}`, { name, price }, { headers: { Authorization: `Bearer ${token}` } })
+        : await API.post("/admin/services", { name, price }, { headers: { Authorization: `Bearer ${token}` } });
 
-      // Update frontend state with returned object
       const updatedService: Service = res.data;
-      setServices((prev) => {
-        if (editId !== null) {
-          return prev.map((s) => (s.id === updatedService.id ? updatedService : s));
-        } else {
-          return [...prev, updatedService];
-        }
-      });
+      setServices((prev) => editId !== null ? prev.map((s) => s.id === updatedService.id ? updatedService : s) : [...prev, updatedService]);
 
       setName("");
       setPrice(0);
       setEditId(null);
-    } catch (err: unknown) {
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: { detail?: string } } }).response === "object" &&
-        (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-      ) {
-        alert(`Error: ${(err as { response?: { data?: { detail?: string } } }).response!.data!.detail}`);
-      } else {
-        console.error("Error saving service:", err);
-      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving service");
     }
   };
 
@@ -94,26 +66,15 @@ const ServicesAdmin: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this service?")) return;
+    if (!window.confirm("Are you sure?")) return;
     if (!token) return;
 
     try {
-      await API.delete(`/admin/services/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await API.delete(`/admin/services/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       setServices((prev) => prev.filter((s) => s.id !== id));
-    } catch (err: unknown) {
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: { detail?: string } } }).response === "object" &&
-        (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-      ) {
-        alert(`Cannot delete service: ${(err as { response?: { data?: { detail?: string } } }).response!.data!.detail}`);
-      } else {
-        console.error("Error deleting service:", err);
-      }
+    } catch (err) {
+      console.error(err);
+      alert("Cannot delete service");
     }
   };
 
@@ -147,37 +108,35 @@ const ServicesAdmin: React.FC = () => {
         {loading ? (
           <p>Loading services...</p>
         ) : (
-          <table className="services-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {services.length > 0 ? (
-                services.map((svc) => (
-                  <tr key={svc.id}>
-                    <td>{svc.name}</td>
-                    <td>${svc.price}</td>
-                    <td>
-                      <button onClick={() => handleEdit(svc)} className="btn edit">
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(svc.id)} className="btn delete">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table className="services-table">
+              <thead>
                 <tr>
-                  <td colSpan={3}>No services found</td>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {services.length > 0 ? (
+                  services.map((svc) => (
+                    <tr key={svc.id}>
+                      <td data-label="Name">{svc.name}</td>
+                      <td data-label="Price">${svc.price}</td>
+                      <td data-label="Actions">
+                        <button onClick={() => handleEdit(svc)} className="edit btn">Edit</button>
+                        <button onClick={() => handleDelete(svc.id)} className="delete btn">Delete</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3}>No services found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </Layout>
