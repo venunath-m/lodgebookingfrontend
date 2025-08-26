@@ -13,17 +13,19 @@ import {
   DocumentPlusIcon,
   PresentationChartBarIcon
 } from "@heroicons/react/24/solid";
-import { NavLink } from "react-router-dom";
+import { NavLink,useNavigate } from "react-router-dom";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 import "../pages/DashboardLayout.css";
+import { useAuth } from "../context/useAuth";
 export default function DashboardLayout({ children }: LayoutProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-
+const navigate = useNavigate();
+const { setToken } = useAuth();
   // Detect mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -33,7 +35,12 @@ export default function DashboardLayout({ children }: LayoutProps) {
   }, []);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
+  const handleLogout = () => {
+     setToken(null); 
+  localStorage.removeItem("authToken"); // or any user/session key
+  sessionStorage.clear(); // optional
+  navigate("/login", { replace: true });
+};
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="layout">
@@ -110,7 +117,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
             </li>
 
             <li>
-              <NavLink to="/logout" className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
+              <NavLink to="#" onClick={handleLogout} className={({ isActive }: { isActive: boolean }) => isActive ? "active" : ""}>
                 <ArrowRightOnRectangleIcon className="icon" /> Logout
               </NavLink>
             </li>
@@ -122,21 +129,23 @@ export default function DashboardLayout({ children }: LayoutProps) {
         <div className={`main-content ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
           {/* AppBar */}
           <header className="appbar">
-            <div className="appbar-left">
-              <img src={logo} alt="Logo" className="logo" />
-            </div>
+  <div className="appbar-left">
+    <div className="logo-container">
+      <img src={logo} alt="Logo" className="logo" />
+    </div>
+  </div>
 
-            {isMobile && (
-              <button onClick={toggleSidebar} className="hamburger-btn">
-                <Bars3Icon className="icon" />
-              </button>
-            )}
+  {isMobile && (
+    <button onClick={toggleSidebar} className="hamburger-btn">
+      <Bars3Icon className="icon" />
+    </button>
+  )}
 
-            <button onClick={() => setDarkMode(!darkMode)} className="theme-btn">
-              {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}
-              <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
-            </button>
-          </header>
+  <button onClick={() => setDarkMode(!darkMode)} className="theme-btn">
+    {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}
+    <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
+  </button>
+</header>
 
 
 

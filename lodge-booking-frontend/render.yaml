@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: lodge-booking-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
+    # optional but useful
+    envVars:
+      - key: NODE_VERSION
+        value: 18
