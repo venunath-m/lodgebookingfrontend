@@ -1,0 +1,38 @@
+/* ================================
+   Mobile-Only Style Overrides
+   ================================ */
+@media (max-width: 640px) {
+  /* Page Layout */
+  .page-content {
+    padding: 0.5rem !important; /* tighter padding on mobile */
+  }
+
+  /* Room Cards */
+  .room-card {
+    border-radius: 0 !important; /* edge-to-edge look */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 12px !important;
+  }
+
+  /* Grid Layout */
+  .rooms-grid {
+    grid-template-columns: 1fr !important; /* one column on small screens */
+    gap: 12px !important;
+    padding: 0 4px !important; /* tiny breathing space */
+  }
+
+  /* Buttons */
+  .room-book-btn,
+  .room-vacant-btn {
+    padding: 10px !important; /* bigger tap area */
+    font-size: 14px !important;
+  }
+
+  /* Optional: Navbar/Footer adjustments */
+  .navbar,
+  .footer {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}

@@ -107,7 +107,7 @@
   overflow-y: auto;
   background: #f1f5f9;
   transition: margin-left 0.3s ease;
-  padding-top: 4.5rem;
+  padding-top: 3.5rem;
   position: relative; /* for floating shapes */
 }
 .main-content.sidebar-closed {
@@ -191,8 +191,15 @@
      .logo-container {
     justify-content: flex-start;  /* align left on mobile */
     padding: 0.25rem 0.5rem;
+    background: transparent;      /* remove background box on mobile */
+    min-height: unset;            /* let AppBar height control it */
+    height: 100%;                 /* take full height of AppBar */
+    border-radius: 0;             /* no rounded edges spilling out */
   }
+
   .logo {
+    height: auto;
+    filter: invert(1) brightness(0.1);
     max-width: 150px; /* slightly smaller on mobile */
   }
   .hamburger-btn { display: block; margin-top: 0; }
