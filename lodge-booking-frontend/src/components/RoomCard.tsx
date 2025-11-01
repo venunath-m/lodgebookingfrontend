@@ -1,6 +1,6 @@
 "use client";
 import type { Room } from "../types";
-import "./RoomCard.css"
+import "./RoomCard.css";
 
 interface Props {
   room: Room;
@@ -21,12 +21,12 @@ const RoomCard = ({ room, onBook, onVacant, className, booked, cancelled }: Prop
       }`}
     >
       {/* Status badges */}
-      <div className={`badge ${isAvailable ? "available" : "occupied"}`}> 
+      <div className={`badge left ${isAvailable ? "available" : "occupied"}`}>
         {isAvailable ? "Available" : "Occupied"}
       </div>
 
-      {booked && <div className="badge booked-right">Booked</div>}
-      {cancelled && <div className="badge cancelled-right">Cancelled</div>}
+      {booked && <div className="badge right booked">Booked</div>}
+      {cancelled && <div className="badge right cancelled">Cancelled</div>}
 
       {/* Room image */}
       <div className="room-image-container">

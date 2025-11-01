@@ -4,6 +4,7 @@ import Layout from "../components/DashboardLayout";
 import PopMessage from "../components/PopMessage";
 import API from "../api/axios";
 import  { isAxiosError } from "axios";
+import DevOnly from "../context/DevOnly";
 export default function BackupRestore() {
   const [backupPath, setBackupPath] = useState("");
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
@@ -70,6 +71,7 @@ export default function BackupRestore() {
   const handlePopClose = () => setPopMessage(null);
 
   return (
+    <DevOnly>
     <Layout>
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Backup Section */}
@@ -124,5 +126,6 @@ export default function BackupRestore() {
         />
       )}
     </Layout>
+    </DevOnly>
   );
 }

@@ -53,5 +53,6 @@ export interface AuthContextType {
   token: string | null;
   setToken: (token: string | null) => void;
   role: "user" | "admin" | null;
-  setRole: (role: "user" | "admin") => void;
+  setRole: (role: "user" | "admin" | null) => void;
+  loading: boolean;
 }

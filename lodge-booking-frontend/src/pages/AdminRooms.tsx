@@ -1,12 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useRef  } from "react";
 import API from "../api/axios";
 import type { Room } from "../types";
 import { useAuth } from "../context/useAuth";
 import RoomCard from "../components/RoomCard";
 import Layout from "../components/DashboardLayout";
 import "../App.css";
-
+import { PencilSquareIcon, TrashIcon, ArrowRightOnRectangleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import DevOnly from "../context/DevOnly";
 interface RoomFormData {
   id?: number;
   name: string;
@@ -19,7 +20,7 @@ interface RoomFormData {
 export default function AdminRooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const { token } = useAuth();
-
+  const modalRef = useRef<HTMLDivElement>(null);
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 6;
@@ -46,11 +47,15 @@ export default function AdminRooms() {
       console.error(err);
     }
   };
-
+  
   useEffect(() => {
     if (token) fetchRooms();
   }, [token]);
-
+  useEffect(() => {
+  if (modalOpen && modalRef.current) {
+    modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}, [modalOpen]);
   // pagination logic
   const indexOfLastRoom = currentPage * roomsPerPage;
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
@@ -143,6 +148,7 @@ export default function AdminRooms() {
 
 
   return (
+    <DevOnly>
     <Layout>
       <div className="admin-rooms-page">
         {/* header */}
@@ -172,33 +178,36 @@ export default function AdminRooms() {
                   <RoomCard room={room} />
                   <div className="flex gap-2 mt-4">
                     <button
-                      onClick={() => openModal(room)}
-                      className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-                    >
-                      Edit
-                    </button>
+                        onClick={() => openModal(room)}
+                        className="flex-1 flex room-action-btn items-center justify-center gap-2 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+                      >
+                        <PencilSquareIcon className="w-5 h-5" />
+                        <span>Edit</span>
+                      </button>
 
-                    <button
-  onClick={() => handleVacant(room.id)}
-  className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
-  disabled={room.status === "vacant"}
->
-  Set to Vacant
-</button>
+                      <button
+                        onClick={() => handleVacant(room.id)}
+                        className="flex-1 room-action-btn flex items-center justify-center gap-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
+                        disabled={room.status === "vacant"}
+                      >
+                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                        <span>Set to Vacant</span>
+                      </button>
 
-{room.status === "cancelled" && (
-  <span className="ml-2 px-2 py-1 bg-yellow-400 text-black rounded-md text-sm font-semibold">
-    Cancelled
-  </span>
-)}
+                      <button
+                        onClick={() => handleDelete(room.id)}
+                        className="flex-1 room-action-btn flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                        <span>Delete</span>
+                      </button>
 
 
-                    <button
-                      onClick={() => handleDelete(room.id)}
-                      className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-                    >
-                      Delete
-                    </button>
+                          {room.status === "cancelled" && (
+                            <span className="ml-2 px-2 py-1 room-action-btn bg-yellow-400 text-black rounded-md text-sm font-semibold">
+                              <XCircleIcon className="w-4 h-4" /> Cancelled
+                            </span>
+                          )}                   
                   </div>
 
                 </div>
@@ -251,6 +260,7 @@ export default function AdminRooms() {
         {/* modal */}
         {modalOpen && (
           <div
+            ref={modalRef}
             className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center px-4"
             onClick={() => setModalOpen(false)}
           >
@@ -377,5 +387,6 @@ export default function AdminRooms() {
         )}
       </div>
     </Layout>
+    </DevOnly>
   );
 }

@@ -324,3 +324,23 @@ body, html, #root {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.35);
 }
+.room-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;                /* space between icon & text */
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.room-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.room-action-btn:hover {
+  transform: translateY(-1px);
+}

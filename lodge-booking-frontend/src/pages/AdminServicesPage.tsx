@@ -4,6 +4,7 @@ import Layout from "../components/DashboardLayout";
 import { useAuth } from "../context/useAuth";
 import API from "../api/axios";
 import "./services.css";
+import DevOnly from "../context/DevOnly";
 
 interface Service {
   id: number;
@@ -79,6 +80,7 @@ const ServicesAdmin: React.FC = () => {
   };
 
   return (
+    <DevOnly>
     <Layout>
       <div className="services-admin">
         <h2>Services Management</h2>
@@ -140,6 +142,7 @@ const ServicesAdmin: React.FC = () => {
         )}
       </div>
     </Layout>
+    </DevOnly>
   );
 };
 

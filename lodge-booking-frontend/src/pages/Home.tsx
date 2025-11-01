@@ -7,7 +7,7 @@ import { useAuth } from "../context/useAuth";
 import Layout from "../components/DashboardLayout";
 import "../App.css";
 import BookingDialog from "../components/BookingDialog";
-
+import DevOnly from "../context/DevOnly";
 type RoomStatus = "booked" | "vacant" | "cancelled";
 
 export default function Home() {
@@ -130,6 +130,7 @@ useEffect(() => {
   const totalPages = Math.ceil(rooms.length / roomsPerPage);
 
   return (
+    <DevOnly>
     <Layout>
       <div className="admin-rooms-page">
         <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -213,5 +214,6 @@ useEffect(() => {
         onConfirm={handleDialogSubmit}
       />
     </Layout>
+    </DevOnly>
   );
 }

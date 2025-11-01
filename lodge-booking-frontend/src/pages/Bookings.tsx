@@ -5,7 +5,7 @@ import type { Booking, Room } from "../types";
 import { useAuth } from "../context/useAuth";
 import Layout from "../components/DashboardLayout";
 import BookingDialog from "../components/BookingDialog";
-
+import DevOnly from "../context/DevOnly";
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filtered, setFiltered] = useState<Booking[]>([]);
@@ -130,6 +130,7 @@ export default function Bookings() {
   };
 
   return (
+    <DevOnly>
     <Layout>
       <div className="admin-rooms-page">
         <h1 style={{ fontSize: "1.5rem", marginBottom: 16 }}>My Bookings</h1>
@@ -211,5 +212,6 @@ export default function Bookings() {
         )}
       </div>
     </Layout>
+    </DevOnly>
   );
 }
