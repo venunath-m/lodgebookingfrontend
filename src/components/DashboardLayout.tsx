@@ -13,7 +13,7 @@ import {
   Cog6ToothIcon,
   DocumentPlusIcon,
   PresentationChartBarIcon,
-  UserPlusIcon 
+  UserPlusIcon
 } from "@heroicons/react/24/solid";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./NewFloatingStyles.css";
@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
       <div className="layout">
         {/* Sidebar */}
         <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-          <div style={{ height: "4.5rem" }}></div> 
+          <div style={{ height: "4.5rem" }}></div>
 
           <ul className="menu">
             <li>
@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <PresentationChartBarIcon className="icon" /> Invoices Dashboard
               </NavLink>
             </li>
-              
+
             <li>
               <NavLink to="/backup-restore" className={({ isActive }) => isActive ? "active" : ""}>
                 <ArrowPathIcon className="icon" /> Backup & Restore
@@ -133,6 +133,18 @@ export default function DashboardLayout({ children }: LayoutProps) {
             <li>
               <NavLink to="/signup" className={({ isActive }) => isActive ? "active" : ""}>
                 <UserPlusIcon className="icon" /> Add User
+              </NavLink>
+            </li>
+            {/* 🧾 Accounting Section */}
+            <li>
+              <NavLink to="/accounting" className={({ isActive }) => isActive ? "active" : ""}>
+                <PresentationChartBarIcon className="icon" /> Accounting Dashboard
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/accounting/yearend" className={({ isActive }) => isActive ? "active" : ""}>
+                <ArchiveBoxIcon className="icon" /> Year-End Process
               </NavLink>
             </li>
             <li>
@@ -151,24 +163,24 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <div className="shape-circle small"></div>
 
           {/* AppBar */}
-        <header className="appbar">
-          <div className="appbar-left">
-            <div className="logo-container">
-              <img src={logo} alt="Logo" className="logo" />
+          <header className="appbar">
+            <div className="appbar-left">
+              <div className="logo-container">
+                <img src={logo} alt="Logo" className="logo" />
+              </div>
+
+              {/* Hamburger button outside logo container */}
+              {isMobile && (
+                <button onClick={toggleSidebar} className="hamburger-btn">
+                  <Bars3Icon className="icon" />
+                </button>
+              )}
             </div>
 
-            {/* Hamburger button outside logo container */}
-            {isMobile && (
-              <button onClick={toggleSidebar} className="hamburger-btn">
-                <Bars3Icon className="icon" />
-              </button>
-            )}
-          </div>
-
-          <button onClick={toggleDarkMode} className="theme-btn">
-            {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}            
-          </button>
-        </header>
+            <button onClick={toggleDarkMode} className="theme-btn">
+              {darkMode ? <SunIcon className="icon sun" /> : <MoonIcon className="icon moon" />}
+            </button>
+          </header>
 
 
           {/* Page content */}
