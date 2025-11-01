@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getBalanceSheet } from "../../services/accountingServices";
+import { getBalanceSheet } from "../../services/accountingService";
 import { BalanceSheetResponse } from "../../types/accounting";
 
 const BalanceSheet: React.FC = () => {

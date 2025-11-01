@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAccounts, createAccount } from "../../services/accountingServices";
+import { getAccounts, createAccount } from "../../services/accountingService";
 import { Account, AccountCreate } from "../../types/accounting";
 
 const AccountsPage: React.FC = () => {

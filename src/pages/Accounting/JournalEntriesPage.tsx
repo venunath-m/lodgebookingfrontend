@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getJournalEntries, createJournalEntry, getAccounts } from "../../services/accountingServices";
+import { getJournalEntries, createJournalEntry, getAccounts } from "../../services/accountingService";
 import { JournalEntry, JournalEntryCreate, Account } from "../../types/accounting";
 
 const JournalEntriesPage: React.FC = () => {

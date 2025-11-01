@@ -67,3 +67,4 @@ export default tseslint.config([
   },
 ])
 ```
+npm install lucide-react

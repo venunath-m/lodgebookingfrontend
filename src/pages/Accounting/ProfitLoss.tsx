@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getProfitLoss } from "../../services/accountingServices";
+import { getProfitLoss } from "../../services/accountingService";
 import { ProfitLossResponse } from "../../types/accounting";
 
 const ProfitLoss: React.FC = () => {
