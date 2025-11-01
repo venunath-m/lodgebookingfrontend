@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ['react', 'react-dom'] // 🔹 important
+    alias: {
+      '@': path.resolve(__dirname, './src'), // ✅ allows "@/..." imports
+    },
+    dedupe: ['react', 'react-dom'], // 🔹 keep this
   },
   build: {
     minify: 'terser',
@@ -12,12 +16,12 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
-        passes: 3
+        passes: 3,
       },
-      mangle: true,            // rename variables & functions
+      mangle: true,
       format: {
-        comments: false        // remove comments
-      }
-    }
-  }
+        comments: false,
+      },
+    },
+  },
 });
