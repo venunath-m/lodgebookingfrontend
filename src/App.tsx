@@ -14,6 +14,16 @@ import InvoiceReports from "./pages/InvoiceReports";
 import InvoiceDashboard from "./pages/InvoiceDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import DevOnly from "./context/DevOnly";
+
+// ✅ Accounting Pages
+import AccountingDashboard from "./pages/AccountingDashboard";
+import AccountsPage from "./pages/Accounting/AccountsPage";
+import JournalEntriesPage from "./pages/Accounting/JournalEntriesPage";
+import TrialBalance from "./pages/Accounting/TrialBalance";
+import ProfitLoss from "./pages/Accounting/ProfitLoss";
+import BalanceSheet from "./pages/Accounting/BalanceSheet";
+import YearEndProcess from "./components/accounting/YearEndProcess";
+
 function App() {
   return (
     <AuthProvider>
@@ -34,6 +44,15 @@ function App() {
         <Route path="/invoices/create" element={<ProtectedRoute><InvoiceForm /></ProtectedRoute>} />        
         <Route path="/invoices/reports" element={<ProtectedRoute><InvoiceReports /></ProtectedRoute>} />
         <Route path="/invoices/dashboard" element={<ProtectedRoute><InvoiceDashboard /></ProtectedRoute>} />
+
+        {/* ✅ Accounting routes */}
+        <Route path="/accounting" element={<ProtectedRoute><AccountingDashboard /></ProtectedRoute>} />
+        <Route path="/accounting/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
+        <Route path="/accounting/journal-entries" element={<ProtectedRoute><JournalEntriesPage /></ProtectedRoute>} />
+        <Route path="/accounting/trial-balance" element={<ProtectedRoute><TrialBalance /></ProtectedRoute>} />
+        <Route path="/accounting/profit-loss" element={<ProtectedRoute><ProfitLoss /></ProtectedRoute>} />
+        <Route path="/accounting/balance-sheet" element={<ProtectedRoute><BalanceSheet /></ProtectedRoute>} />
+        <Route path="/accounting/yearend" element={<ProtectedRoute><YearEndProcess /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   );
