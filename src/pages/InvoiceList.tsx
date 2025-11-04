@@ -141,13 +141,11 @@ const InvoiceList: React.FC = () => {
                     </button>
                     <button onClick={() => openPrintModal(inv)}>Print</button>
                     <button
-                      onClick={() => {
-                        setSelectedInvoice(inv);
-                        setTimeout(() => handleDownloadPDF(), 200);
-                      }}
+                      onClick={() => window.open(`/invoice/preview/${inv.invoice_id}`, "_blank")}
                     >
                       PDF
                     </button>
+
                   </td>
                 </tr>
               ))}
