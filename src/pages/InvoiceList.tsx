@@ -36,8 +36,12 @@ const InvoiceList: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [showPrintModal, setShowPrintModal] = useState<boolean>(false);
+  const [includeLogo, setIncludeLogo] = useState<boolean>(true);
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
   const componentRef = useRef<HTMLDivElement>(null);
 
+  /** Fetch Invoices */
   const fetchInvoices = async () => {
     if (!token) return;
     try {
@@ -56,14 +60,29 @@ const InvoiceList: React.FC = () => {
     fetchInvoices();
   }, [token]);
 
- /** 🖨️ Print invoice */
-const handlePrint = useReactToPrint({
-  content: () => componentRef.current,
-  documentTitle: selectedInvoice
-    ? `Invoice_${selectedInvoice.invoice_id}`
-    : "Invoice",
-} as any);
+  /** 🖨️ React-to-Print handler */
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+    documentTitle: selectedInvoice
+      ? `Invoice_${selectedInvoice.invoice_id}`
+      : "Invoice",
+    pageStyle: `
+      @page { size: ${orientation}; margin: 15mm; }
+      body { font-family: Arial, sans-serif; }
+    `,
+  } as any);
 
+  /** 🧾 Open modal before printing */
+  const openPrintModal = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setShowPrintModal(true);
+  };
+
+  /** Confirm and print */
+  const confirmPrint = () => {
+    setShowPrintModal(false);
+    setTimeout(() => handlePrint(), 300);
+  };
 
   /** 📄 Download as PDF */
   const handleDownloadPDF = async () => {
@@ -72,7 +91,7 @@ const handlePrint = useReactToPrint({
     const canvas = await html2canvas(element, { scale: 2 });
     const data = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
+    const pdf = new jsPDF(orientation === "portrait" ? "p" : "l", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
@@ -114,24 +133,13 @@ const handlePrint = useReactToPrint({
                   <td>{inv.finalAmount}</td>
                   <td>{new Date(inv.createdAt).toLocaleString()}</td>
                   <td>
-                    <button
-                      onClick={() => alert(`Edit invoice ${inv.invoice_id}`)}
-                    >
+                    <button onClick={() => alert(`Edit invoice ${inv.invoice_id}`)}>
                       Edit
                     </button>
-                    <button
-                      onClick={() => alert(`Delete invoice ${inv.invoice_id}`)}
-                    >
+                    <button onClick={() => alert(`Delete invoice ${inv.invoice_id}`)}>
                       Delete
                     </button>
-                    <button
-                      onClick={() => {
-                        setSelectedInvoice(inv);
-                        setTimeout(() => handlePrint(), 200);
-                      }}
-                    >
-                      Print
-                    </button>
+                    <button onClick={() => openPrintModal(inv)}>Print</button>
                     <button
                       onClick={() => {
                         setSelectedInvoice(inv);
@@ -148,11 +156,60 @@ const handlePrint = useReactToPrint({
         )}
       </div>
 
+      {/* 🧾 Print Preview Modal */}
+      {showPrintModal && selectedInvoice && (
+        <div className="print-modal-overlay">
+          <div className="print-modal">
+            <h3>🖨️ Print Preview Settings</h3>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={includeLogo}
+                onChange={(e) => setIncludeLogo(e.target.checked)}
+              />
+              Include Company Logo
+            </label>
+
+            <label style={{ marginTop: "10px" }}>
+              Page Orientation:
+              <select
+                value={orientation}
+                onChange={(e) =>
+                  setOrientation(e.target.value as "portrait" | "landscape")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+              </select>
+            </label>
+
+            <div className="modal-actions">
+              <button onClick={confirmPrint}>Print Now</button>
+              <button onClick={() => setShowPrintModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Printable Area */}
       {selectedInvoice && (
-        <div ref={componentRef} className="invoice-print-area">
+        <div
+          ref={componentRef}
+          className="invoice-print-area"
+          style={{
+            display: showPrintModal ? "none" : "block",
+          }}
+        >
           <div className="invoice-header">
-            <img src={companyLogo} alt="Company Logo" className="invoice-logo" />
+            {includeLogo && (
+              <img
+                src={companyLogo}
+                alt="Company Logo"
+                className="invoice-logo"
+              />
+            )}
             <div className="company-details">
               <h2>Your Company Name</h2>
               <p>123 Business Street, City, State</p>
