@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import "./PrintableInvoice.css";
-
+import companyLogo from "../assets/company-logo.png";
 interface InvoiceItem {
   description: string;
   quantity: number;
@@ -27,8 +27,8 @@ interface PrintableInvoiceProps {
 const PrintableInvoice = forwardRef<HTMLDivElement, PrintableInvoiceProps>(({ invoice }, ref) => {
   return (
     <div ref={ref} className="printable-invoice">
-      <div className="invoice-header">
-        <img src="/company-logo.png" alt="Company Logo" className="company-logo" />
+      <div className="invoice-header">       
+         <img src={companyLogo} alt="Company Logo" className="company-logo" />
         <div className="company-details">
           <h2>My Booking Company Pvt. Ltd.</h2>
           <p>123 Main Street, Kochi, Kerala - 682001</p>

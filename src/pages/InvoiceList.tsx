@@ -56,13 +56,14 @@ const InvoiceList: React.FC = () => {
     fetchInvoices();
   }, [token]);
 
-  /** 🖨️ Print invoice */
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: selectedInvoice
-      ? `Invoice_${selectedInvoice.invoice_id}`
-      : "Invoice",
-  });
+ /** 🖨️ Print invoice */
+const handlePrint = useReactToPrint({
+  content: () => componentRef.current,
+  documentTitle: selectedInvoice
+    ? `Invoice_${selectedInvoice.invoice_id}`
+    : "Invoice",
+} as any);
+
 
   /** 📄 Download as PDF */
   const handleDownloadPDF = async () => {
