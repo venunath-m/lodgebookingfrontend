@@ -1,0 +1,68 @@
+.printable-invoice {
+  font-family: "Poppins", sans-serif;
+  color: #333;
+  font-size: 14px;
+}
+
+.company-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.invoice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.invoice-summary p,
+.invoice-summary h3 {
+  margin: 4px 0;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.invoice-preview-container {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.invoice-toolbar {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.invoice-toolbar button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.invoice-toolbar button:hover {
+  background-color: #4338ca;
+}
+
+/* Hide toolbar when printing */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media print {
+  .invoice-preview-container button {
+    display: none;
+  }
+}

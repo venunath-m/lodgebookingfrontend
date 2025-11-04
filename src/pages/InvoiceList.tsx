@@ -2,12 +2,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import API from "../api/axios";
 import { useAuth } from "../context/useAuth";
-import "./InvoiceList.css";
 import Layout from "../components/DashboardLayout";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import companyLogo from "../assets/company-logo.png";
+import "./InvoiceList.css";
 
 interface InvoiceItem {
   description: string;
@@ -41,7 +41,7 @@ const InvoiceList: React.FC = () => {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
   const componentRef = useRef<HTMLDivElement>(null);
 
-  /** Fetch Invoices */
+  /** Fetch invoices */
   const fetchInvoices = async () => {
     if (!token) return;
     try {
@@ -50,7 +50,7 @@ const InvoiceList: React.FC = () => {
       });
       setInvoices(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching invoices:", err);
     } finally {
       setLoading(false);
     }
@@ -60,31 +60,33 @@ const InvoiceList: React.FC = () => {
     fetchInvoices();
   }, [token]);
 
-  /** 🖨️ React-to-Print handler */
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: selectedInvoice
-      ? `Invoice_${selectedInvoice.invoice_id}`
-      : "Invoice",
-    pageStyle: `
-      @page { size: ${orientation}; margin: 15mm; }
-      body { font-family: Arial, sans-serif; }
-    `,
-  } as any);
+  /** Print setup */
+const handlePrint = useReactToPrint({
+  // @ts-ignore
+  content: () => componentRef.current,
+  documentTitle: selectedInvoice
+    ? `Invoice_${selectedInvoice.invoice_id}`
+    : "Invoice",
+  pageStyle: `
+    @page { size: ${orientation}; margin: 15mm; }
+    body { font-family: Arial, sans-serif; }
+  `,
+});
 
-  /** 🧾 Open modal before printing */
+
+  /** Open print modal */
   const openPrintModal = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
     setShowPrintModal(true);
   };
 
-  /** Confirm and print */
+  /** Confirm print */
   const confirmPrint = () => {
     setShowPrintModal(false);
-    setTimeout(() => handlePrint(), 300);
+    setTimeout(() => handlePrint && handlePrint(), 300);
   };
 
-  /** 📄 Download as PDF */
+  /** Download PDF */
   const handleDownloadPDF = async () => {
     if (!componentRef.current || !selectedInvoice) return;
     const element = componentRef.current;
@@ -102,7 +104,7 @@ const InvoiceList: React.FC = () => {
   return (
     <Layout>
       <div className="invoice-list-container">
-        <h2>Invoices</h2>
+        <h2>🧾 Invoice List</h2>
 
         {loading ? (
           <p>Loading...</p>
@@ -127,25 +129,17 @@ const InvoiceList: React.FC = () => {
                   <td>{inv.invoice_id}</td>
                   <td>{inv.booking_id}</td>
                   <td>{inv.user}</td>
-                  <td>{inv.totalAmount}</td>
-                  <td>{inv.tax}</td>
-                  <td>{inv.discount}</td>
-                  <td>{inv.finalAmount}</td>
+                  <td>₹{inv.totalAmount}</td>
+                  <td>₹{inv.tax}</td>
+                  <td>₹{inv.discount}</td>
+                  <td><strong>₹{inv.finalAmount}</strong></td>
                   <td>{new Date(inv.createdAt).toLocaleString()}</td>
                   <td>
-                    <button onClick={() => alert(`Edit invoice ${inv.invoice_id}`)}>
-                      Edit
-                    </button>
-                    <button onClick={() => alert(`Delete invoice ${inv.invoice_id}`)}>
-                      Delete
-                    </button>
                     <button onClick={() => openPrintModal(inv)}>Print</button>
-                    <button
-                      onClick={() => window.open(`/invoice/preview/${inv.invoice_id}`, "_blank")}
-                    >
-                      PDF
-                    </button>
-
+                    <button onClick={() => {
+                      const invoiceData = encodeURIComponent(JSON.stringify(inv));
+                      window.open(`/invoice/preview/${inv.invoice_id}?data=${invoiceData}`, "_blank");
+                    }}>PDF</button>
                   </td>
                 </tr>
               ))}
@@ -154,7 +148,7 @@ const InvoiceList: React.FC = () => {
         )}
       </div>
 
-      {/* 🧾 Print Preview Modal */}
+      {/* Print Preview Modal */}
       {showPrintModal && selectedInvoice && (
         <div className="print-modal-overlay">
           <div className="print-modal">
@@ -186,27 +180,26 @@ const InvoiceList: React.FC = () => {
             <div className="modal-actions">
               <button onClick={confirmPrint}>Print Now</button>
               <button onClick={() => setShowPrintModal(false)}>Cancel</button>
+              <button onClick={handleDownloadPDF}>Download PDF</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Printable Area */}
+      {/* Hidden Printable Invoice */}
       {selectedInvoice && (
         <div
           ref={componentRef}
           className="invoice-print-area"
           style={{
             display: showPrintModal ? "none" : "block",
+            background: "white",
+            padding: "30px",
           }}
         >
           <div className="invoice-header">
             {includeLogo && (
-              <img
-                src={companyLogo}
-                alt="Company Logo"
-                className="invoice-logo"
-              />
+              <img src={companyLogo} alt="Company Logo" className="invoice-logo" />
             )}
             <div className="company-details">
               <h2>Your Company Name</h2>
@@ -218,19 +211,10 @@ const InvoiceList: React.FC = () => {
           <hr />
 
           <div className="invoice-meta">
-            <p>
-              <strong>Invoice ID:</strong> {selectedInvoice.invoice_id}
-            </p>
-            <p>
-              <strong>Booking ID:</strong> {selectedInvoice.booking_id}
-            </p>
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(selectedInvoice.createdAt).toLocaleString()}
-            </p>
-            <p>
-              <strong>User:</strong> {selectedInvoice.user}
-            </p>
+            <p><strong>Invoice ID:</strong> {selectedInvoice.invoice_id}</p>
+            <p><strong>Booking ID:</strong> {selectedInvoice.booking_id}</p>
+            <p><strong>Date:</strong> {new Date(selectedInvoice.createdAt).toLocaleString()}</p>
+            <p><strong>User:</strong> {selectedInvoice.user}</p>
           </div>
 
           <table className="invoice-items-table">
@@ -247,26 +231,18 @@ const InvoiceList: React.FC = () => {
                 <tr key={idx}>
                   <td>{item.description}</td>
                   <td>{item.quantity}</td>
-                  <td>{item.unitPrice}</td>
-                  <td>{item.subtotal}</td>
+                  <td>₹{item.unitPrice}</td>
+                  <td>₹{item.subtotal}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           <div className="invoice-summary">
-            <p>
-              <strong>Total:</strong> ₹{selectedInvoice.totalAmount}
-            </p>
-            <p>
-              <strong>Tax:</strong> ₹{selectedInvoice.tax}
-            </p>
-            <p>
-              <strong>Discount:</strong> ₹{selectedInvoice.discount}
-            </p>
-            <h3>
-              <strong>Final Amount:</strong> ₹{selectedInvoice.finalAmount}
-            </h3>
+            <p><strong>Total:</strong> ₹{selectedInvoice.totalAmount}</p>
+            <p><strong>Tax:</strong> ₹{selectedInvoice.tax}</p>
+            <p><strong>Discount:</strong> ₹{selectedInvoice.discount}</p>
+            <h3><strong>Final Amount:</strong> ₹{selectedInvoice.finalAmount}</h3>
           </div>
 
           <div className="invoice-footer">
