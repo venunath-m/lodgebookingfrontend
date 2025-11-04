@@ -45,7 +45,8 @@ function App() {
         <Route path="/invoices/create" element={<ProtectedRoute><InvoiceForm /></ProtectedRoute>} />
         <Route path="/invoices/reports" element={<ProtectedRoute><InvoiceReports /></ProtectedRoute>} />
         <Route path="/invoices/dashboard" element={<ProtectedRoute><InvoiceDashboard /></ProtectedRoute>} />
-        <Route path="/invoice/preview/:id" element={<InvoicePreview />} />
+        <Route path="/invoice/preview/:invoiceId" element={<InvoicePreview />} />
+
         {/* ✅ Accounting routes */}
         <Route path="/accounting" element={<ProtectedRoute><AccountingDashboard /></ProtectedRoute>} />
         <Route path="/accounting/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />

@@ -82,38 +82,68 @@ export default function Bookings() {
   };
 
   const handleEditSubmit = async (data: {
-    roomId?: number;
-    startDate: string;
-    endDate: string;
-    males: number;
-    females: number;
-    document?: File;
-  }) => {
-    if (!selectedBooking) return;
-    if (!data.roomId) return alert("Please select a room");
+  roomId?: number;
+  startDate: string;
+  endDate: string;
+  males: number;
+  females: number;
+  document?: File;
+  // ✅ new fields
+  name?: string;
+  mobile?: string;
+  checkInDate?: string;
+  checkInTime?: string;
+  checkOutDate?: string;
+  checkOutTime?: string;
+  customerGstNo?: string;
+  roomNo?: string;
+  numberOfDates?: number;
+  totalNoPeople?: number;
+  bookingSource?: string;
+  safe?: boolean;
+}) => {
+  if (!selectedBooking) return;
+  if (!data.roomId) return alert("Please select a room");
 
-    try {
-      const formData = new FormData();
-      formData.append("roomId", String(data.roomId));
-      formData.append("startDate", data.startDate);
-      formData.append("endDate", data.endDate);
-      formData.append("males", String(data.males));
-      formData.append("females", String(data.females));
-      if (data.document) formData.append("document", data.document);
+  try {
+    const formData = new FormData();
+    formData.append("roomId", String(data.roomId));
+    formData.append("startDate", data.startDate);
+    formData.append("endDate", data.endDate);
+    formData.append("males", String(data.males));
+    formData.append("females", String(data.females));
+    if (data.document) formData.append("document", data.document);
 
-      await API.put(`/bookings/${selectedBooking.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    // ✅ include all the new fields here
+    if (data.name) formData.append("name", data.name);
+    if (data.mobile) formData.append("mobile", data.mobile);
+    if (data.checkInDate) formData.append("checkInDate", data.checkInDate);
+    if (data.checkInTime) formData.append("checkInTime", data.checkInTime);
+    if (data.checkOutDate) formData.append("checkOutDate", data.checkOutDate);
+    if (data.checkOutTime) formData.append("checkOutTime", data.checkOutTime);
+    if (data.customerGstNo) formData.append("customerGstNo", data.customerGstNo);
+    if (data.roomNo) formData.append("roomNo", data.roomNo);
+    if (data.numberOfDates !== undefined)
+      formData.append("numberOfDates", String(data.numberOfDates));
+    if (data.totalNoPeople !== undefined)
+      formData.append("totalNoPeople", String(data.totalNoPeople));
+    if (data.bookingSource) formData.append("bookingSource", data.bookingSource);
+    formData.append("safe", String(data.safe ?? false));
 
-      alert("Booking updated successfully!");
-      setOpenEditDialog(false);
-      setSelectedBooking(null);
-      fetchBookings();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update booking");
-    }
-  };
+    await API.put(`/bookings/${selectedBooking.id}`, formData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    alert("Booking updated successfully!");
+    setOpenEditDialog(false);
+    setSelectedBooking(null);
+    fetchBookings();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update booking");
+  }
+};
+
 
   const handleCancelBooking = async (bookingId: number) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;

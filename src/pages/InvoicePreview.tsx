@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useRef, useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import companyLogo from "../assets/company-logo.png";
@@ -12,48 +11,67 @@ interface InvoiceItem {
   subtotal: number;
 }
 
-interface Invoice {
+interface InvoiceResponse {
   invoice_id: number;
   booking_id: number;
-  user: string | number;
   totalAmount: number;
   tax: number;
   discount: number;
   finalAmount: number;
   createdAt: string;
+  updatedAt?: string;
+  reason?: string;
+  isDeleted?: boolean;
+  customerName?: string;
+  mobile?: string;
+  roomNo?: string;
+  room?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  bookingSource?: string;
+  safe?: boolean;
+  gstNo?: string;
+  numberOfDates?: number;
+  totalNoPeople?: number;
   items: InvoiceItem[];
 }
 
 const InvoicePreview: React.FC = () => {
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const data = query.get("data");
-  const invoice: Invoice | null = data ? JSON.parse(decodeURIComponent(data)) : null;
-
   const printRef = useRef<HTMLDivElement>(null);
+  const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
 
-  // 🧾 Download as PDF
+  // ✅ Read invoice data from query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get("data");
+    if (encodedData) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(encodedData));
+        setInvoice(parsed);
+      } catch (err) {
+        console.error("Invalid invoice data:", err);
+      }
+    }
+  }, []);
+
+  // ✅ Download as PDF
   const handleDownloadPDF = async () => {
     if (!printRef.current) return;
-    const element = printRef.current;
-
-    const canvas = await html2canvas(element, { scale: 2 });
+    const canvas = await html2canvas(printRef.current, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
-
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
     pdf.save(`Invoice_${invoice?.invoice_id}.pdf`);
   };
 
-  // 🖨️ Print page
-  const handlePrint = () => {
-    window.print();
-  };
+  // ✅ Print directly
+  const handlePrint = () => window.print();
 
-  if (!invoice) return <p>Invalid or missing invoice data.</p>;
+  if (!invoice) return <p>Loading invoice details...</p>;
 
   return (
     <div className="invoice-preview-container">
@@ -63,8 +81,9 @@ const InvoicePreview: React.FC = () => {
         <button onClick={handleDownloadPDF}>💾 Download PDF</button>
       </div>
 
-      {/* Printable section */}
+      {/* Printable area */}
       <div ref={printRef} className="printable-invoice">
+        {/* Header */}
         <div className="invoice-header">
           <img src={companyLogo} alt="Company Logo" className="company-logo" />
           <div className="company-details">
@@ -76,12 +95,35 @@ const InvoicePreview: React.FC = () => {
 
         <hr />
 
+        {/* Invoice Meta */}
         <div className="invoice-meta">
           <p><strong>Invoice ID:</strong> {invoice.invoice_id}</p>
           <p><strong>Booking ID:</strong> {invoice.booking_id}</p>
-          <p><strong>Date:</strong> {new Date(invoice.createdAt).toLocaleDateString()}</p>
+          <p><strong>Date:</strong> {new Date(invoice.createdAt).toLocaleString()}</p>
+          {invoice.reason && <p><strong>Edit Reason:</strong> {invoice.reason}</p>}
         </div>
 
+        {/* Customer Details */}
+        <div className="customer-details">
+          <h3>Customer Details</h3>
+          <p><strong>Name:</strong> {invoice.customerName || "N/A"}</p>
+          <p><strong>Mobile:</strong> {invoice.mobile || "N/A"}</p>
+          <p><strong>GST No:</strong> {invoice.gstNo || "N/A"}</p>
+          <p><strong>Booking Source:</strong> {invoice.bookingSource || "N/A"}</p>
+          <p><strong>Safe Required:</strong> {invoice.safe ? "Yes" : "No"}</p>
+          <p><strong>Total People:</strong> {invoice.totalNoPeople || 0}</p>
+          <p><strong>No. of Days:</strong> {invoice.numberOfDates || 0}</p>
+        </div>
+
+        {/* Room Details */}
+        <div className="room-details">
+          <h3>Room Details</h3>
+          <p><strong>Room:</strong> {invoice.room} ({invoice.roomNo})</p>
+          <p><strong>Check-in:</strong> {invoice.checkInDate} {invoice.checkInTime}</p>
+          <p><strong>Check-out:</strong> {invoice.checkOutDate} {invoice.checkOutTime}</p>
+        </div>
+
+        {/* Items Table */}
         <table className="invoice-items">
           <thead>
             <tr>
@@ -103,6 +145,7 @@ const InvoicePreview: React.FC = () => {
           </tbody>
         </table>
 
+        {/* Summary */}
         <div className="invoice-summary">
           <p><strong>Total:</strong> ₹{invoice.totalAmount.toFixed(2)}</p>
           <p><strong>Tax:</strong> ₹{invoice.tax.toFixed(2)}</p>
@@ -110,6 +153,7 @@ const InvoicePreview: React.FC = () => {
           <h3><strong>Final Amount:</strong> ₹{invoice.finalAmount.toFixed(2)}</h3>
         </div>
 
+        {/* Footer */}
         <div className="invoice-footer">
           <p>Thank you for choosing My Booking Company!</p>
           <p><small>This is a computer-generated invoice.</small></p>
