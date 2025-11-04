@@ -85,23 +85,31 @@
   transform: translateY(0);
 }
 
-/* Edit / Delete Buttons */
-.invoice-table button:first-child {
+/* Edit Button */
+.invoice-table button:nth-child(1) {
   background: #667eea;
   color: white;
 }
-
-.invoice-table button:first-child:hover {
+.invoice-table button:nth-child(1):hover {
   background: #5a67d8;
 }
 
-.invoice-table button:last-child {
+/* Delete Button */
+.invoice-table button:nth-child(2) {
   background: #f87171;
   color: white;
 }
-
-.invoice-table button:last-child:hover {
+.invoice-table button:nth-child(2):hover {
   background: #ef4444;
+}
+
+/* Print Button */
+.invoice-table button:nth-child(3) {
+  background: #10b981;
+  color: white;
+}
+.invoice-table button:nth-child(3):hover {
+  background: #059669;
 }
 
 /* ===============================
@@ -116,4 +124,93 @@
   .invoice-table td {
     padding: 0.25rem 0.5rem;
   }
+}
+
+/* ===============================
+   Printable Invoice Section
+=============================== */
+.invoice-print-area {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-print-area,
+  .invoice-print-area * {
+    visibility: visible;
+  }
+  .invoice-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 40px;
+    background: #fff;
+    color: #000;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+  }
+}
+
+/* Header Section */
+.invoice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.invoice-logo {
+  width: 120px;
+  height: auto;
+}
+
+.company-details {
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* Invoice Meta */
+.invoice-meta {
+  margin: 20px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Item Table */
+.invoice-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.invoice-items-table th,
+.invoice-items-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.invoice-items-table th {
+  background: #f3f4f6;
+}
+
+/* Summary Section */
+.invoice-summary {
+  margin-top: 20px;
+  font-size: 16px;
+  text-align: right;
+}
+
+.invoice-summary p {
+  margin: 5px 0;
+}
+
+/* Footer Section */
+.invoice-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-style: italic;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
 }
