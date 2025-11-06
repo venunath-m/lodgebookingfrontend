@@ -32,7 +32,7 @@ const RoomCard = ({ room, onBook, onVacant, className, booked, cancelled }: Prop
       <div className="room-image-container">
         {room.imageUrl ? (
           <img
-            src={`https://lodgebookingbackend.onrender.com${room.imageUrl}`}
+            src={`https://api.novaresidency.com${room.imageUrl}`}
             alt={room.name}
             className="room-image"
           />
@@ -44,7 +44,7 @@ const RoomCard = ({ room, onBook, onVacant, className, booked, cancelled }: Prop
       {/* Room details */}
       <h3 className="room-name">{room.name}</h3>
       <p className="room-type">{room.type}</p>
-      <p className="room-price">${room.price} / night</p>
+      <p className="room-price">₹{room.price} / night</p>
       <p className="room-description">{room.description}</p>
 
       {/* Buttons */}

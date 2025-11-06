@@ -9,7 +9,7 @@ import {
   BalanceSheetResponse
 } from "../types/accounting";
 
-const API_URL = "https://lodgebookingbackend.onrender.com/accounting";
+const API_URL = "https://api.novaresidency.com/accounting";
 
 export const getAccounts = async (): Promise<Account[]> => {
   const res = await axios.get(`${API_URL}/accounts`);

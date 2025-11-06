@@ -31,10 +31,12 @@ const AccountsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white p-6">
-      <div className="max-w-5xl mx-auto">
+    // <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white p-6">
+    //   <div className="max-w-5xl mx-auto p-6"> 
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white p-10">
+  <div className="max-w-5xl mx-auto p-8 bg-white rounded-2xl shadow-md">
         {/* 🔹 Back Link */}
-        <div className="mb-6">
+        <div className="mb-6" >
           <Link
             to=".."
             relative="path"

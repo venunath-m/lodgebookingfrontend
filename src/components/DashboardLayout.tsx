@@ -95,11 +95,13 @@ export default function DashboardLayout({ children }: LayoutProps) {
               </NavLink>
             </li>
 
-            <li>
-              <NavLink to="/reports" className={({ isActive }) => isActive ? "active" : ""}>
+            {/* <li>
+              <NavLink to=""
+              // /reports
+               className={({ isActive }) => isActive ? "active" : ""}>
                 <PresentationChartBarIcon className="icon" /> Reports
               </NavLink>
-            </li>
+            </li> */}
 
             <li>
               <NavLink to="/invoices" className={({ isActive }) => isActive ? "active" : ""}>
@@ -136,11 +138,11 @@ export default function DashboardLayout({ children }: LayoutProps) {
               </NavLink>
             </li>
             {/* 🧾 Accounting Section */}
-            <li>
+            {/* <li>
               <NavLink to="/accounting" className={({ isActive }) => isActive ? "active" : ""}>
                 <PresentationChartBarIcon className="icon" /> Accounting Dashboard
               </NavLink>
-            </li>
+            </li> */}
 
             <li>
               <NavLink to="/accounting/yearend" className={({ isActive }) => isActive ? "active" : ""}>

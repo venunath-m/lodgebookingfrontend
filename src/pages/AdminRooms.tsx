@@ -1,13 +1,20 @@
+
 "use client";
-import { useEffect, useState ,useRef  } from "react";
+import { useEffect, useState, useRef } from "react";
 import API from "../api/axios";
 import type { Room } from "../types";
 import { useAuth } from "../context/useAuth";
 import RoomCard from "../components/RoomCard";
 import Layout from "../components/DashboardLayout";
 import "../App.css";
-import { PencilSquareIcon, TrashIcon, ArrowRightOnRectangleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  ArrowRightOnRectangleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/solid";
 import DevOnly from "../context/DevOnly";
+
 interface RoomFormData {
   id?: number;
   name: string;
@@ -21,9 +28,13 @@ export default function AdminRooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const { token } = useAuth();
   const modalRef = useRef<HTMLDivElement>(null);
+
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 6;
+
+  // search
+  const [searchQuery, setSearchQuery] = useState("");
 
   // modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -47,20 +58,32 @@ export default function AdminRooms() {
       console.error(err);
     }
   };
-  
+
   useEffect(() => {
     if (token) fetchRooms();
   }, [token]);
+
   useEffect(() => {
-  if (modalOpen && modalRef.current) {
-    modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}, [modalOpen]);
+    if (modalOpen && modalRef.current) {
+      modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [modalOpen]);
+
+  // 🔍 Filter rooms by search
+  const filteredRooms = rooms.filter((room) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      room.name.toLowerCase().includes(query) ||
+      room.type.toLowerCase().includes(query) ||
+      String(room.id).includes(query)
+    );
+  });
+
   // pagination logic
   const indexOfLastRoom = currentPage * roomsPerPage;
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
-  const displayedRooms = rooms.slice(indexOfFirstRoom, indexOfLastRoom);
-  const totalPages = Math.ceil(rooms.length / roomsPerPage);
+  const displayedRooms = filteredRooms.slice(indexOfFirstRoom, indexOfLastRoom);
+  const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
 
   // delete room
   const handleDelete = async (roomId: number) => {
@@ -87,9 +110,7 @@ export default function AdminRooms() {
         image: null,
       });
       setPreviewUrl(
-        room.imageUrl
-          ? `https://lodgebookingbackend.onrender.com${room.imageUrl}`
-          : null
+        room.imageUrl ? `https://api.novaresidency.com${room.imageUrl}` : null
       );
     } else {
       setFormData({ name: "", type: "", price: 0, description: "", image: null });
@@ -125,59 +146,102 @@ export default function AdminRooms() {
       alert("Save failed");
     }
   };
+
   const handleVacant = async (roomId: number) => {
-  try {
-    const data = new FormData();
-    data.append("status", "vacant");
+    try {
+      const data = new FormData();
+      data.append("status", "vacant");
 
-    await API.put(`/admin/rooms/${roomId}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      await API.put(`/admin/rooms/${roomId}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.id === roomId ? { ...r, status: "vacant" } : r
-      )
-    );
-  } catch (err) {
-    console.error(err);
-    alert("Failed to set room to vacant");
-  }
-};
-
-
+      setRooms((prev) =>
+        prev.map((r) => (r.id === roomId ? { ...r, status: "vacant" } : r))
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Failed to set room to vacant");
+    }
+  };
 
   return (
     <DevOnly>
-    <Layout>
-      <div className="admin-rooms-page">
-        {/* header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Admin Rooms
-          </h1>
-          <button
-            onClick={() => openModal()}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-          >
-            Add Room
-          </button>
-        </div>
+      <Layout>
+        <div className="admin-rooms-page">
+          {/* header */}
+          <div className="flex flex-col gap-4 mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Admin Rooms
+            </h1>
 
-        {/* room list */}
-        {displayedRooms.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-300">No rooms available.</p>
-        ) : (
-          <>
-            <div className="rooms-grid">
-              {displayedRooms.map((room) => (
-                <div
-                  key={room.id}
-                  className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:scale-105 transition-transform duration-200"
-                >
-                  <RoomCard room={room} />
-                  <div className="flex gap-2 mt-4">
-                    <button
+            {/* Search + Add Room Row */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                padding: "0 2rem",
+                boxSizing: "border-box",
+              }}
+            >
+              {/* Search Input - Left */}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name, type, or room number..."
+                style={{
+                  flex: "1",
+                  maxWidth: "300px",
+                  padding: "8px 12px",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                  outline: "none",
+                }}
+              />
+
+              {/* Add Room Button - Right */}
+              <button
+                onClick={() => openModal()}
+                style={{
+                  backgroundColor: "#16a34a",
+                  color: "white",
+                  fontWeight: "500",
+                  padding: "8px 20px",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                  marginLeft: "1rem",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#15803d")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#16a34a")
+                }
+              >
+                Add Room
+              </button>
+            </div>
+          </div>
+
+          {/* room list */}
+          {displayedRooms.length === 0 ? (
+            <p className="text-gray-600 dark:text-gray-300">No rooms found.</p>
+          ) : (
+            <>
+              <div className="rooms-grid">
+                {displayedRooms.map((room) => (
+                  <div
+                    key={room.id}
+                    className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:scale-105 transition-transform duration-200"
+                  >
+                    <RoomCard room={room} />
+                    <div className="flex gap-2 mt-4">
+                      <button
                         onClick={() => openModal(room)}
                         className="flex-1 flex room-action-btn items-center justify-center gap-2 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
                       >
@@ -202,62 +266,60 @@ export default function AdminRooms() {
                         <span>Delete</span>
                       </button>
 
-
-                          {room.status === "cancelled" && (
-                            <span className="ml-2 px-2 py-1 room-action-btn bg-yellow-400 text-black rounded-md text-sm font-semibold">
-                              <XCircleIcon className="w-4 h-4" /> Cancelled
-                            </span>
-                          )}                   
+                      {room.status === "cancelled" && (
+                        <span className="ml-2 px-2 py-1 room-action-btn bg-yellow-400 text-black rounded-md text-sm font-semibold">
+                          <XCircleIcon className="w-4 h-4" /> Cancelled
+                        </span>
+                      )}
+                    </div>
                   </div>
+                ))}
+              </div>
 
-                </div>
-              ))}
-            </div>
-
-            {/* pagination */}
-            <div className="flex justify-center mt-6 gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === 1
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Prev
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => (
+              {/* pagination */}
+              <div className="flex justify-center mt-6 gap-2">
                 <button
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
                   className={`px-3 py-1 rounded-lg ${
-                    currentPage === i + 1
-                      ? "bg-blue-700 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
+                    currentPage === 1
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
                   }`}
                 >
-                  {i + 1}
+                  Prev
                 </button>
-              ))}
 
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === totalPages
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === i + 1
+                        ? "bg-blue-700 text-white"
+                        : "bg-gray-200 hover:bg-gray-300"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
 
-        {/* modal */}
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className={`px-3 py-1 rounded-lg ${
+                    currentPage === totalPages
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* modal */}
         {modalOpen && (
           <div
             ref={modalRef}
@@ -356,7 +418,7 @@ export default function AdminRooms() {
                           price: formData.price,
                           description: formData.description,
                           imageUrl: previewUrl.replace(
-                            "https://lodgebookingbackend.onrender.com",
+                            "https://api.novaresidency.com",
                             ""
                           ),
                         }}
@@ -385,8 +447,8 @@ export default function AdminRooms() {
             </div>
           </div>
         )}
-      </div>
-    </Layout>
+        </div>
+      </Layout>
     </DevOnly>
   );
 }

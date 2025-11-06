@@ -1,10 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import API from "../api/axios";
 import InvoiceForm from "./InvoiceForm";
 import "./InvoiceDashboard.css";
 import Layout from "../components/DashboardLayout";
 import { useAuth } from "../context/useAuth";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface InvoiceItem {
   description: string;
@@ -130,6 +132,30 @@ const InvoiceDashboard: React.FC = () => {
     fetchSummary();
   };
 
+  /** Download PDF */
+const selectedInvoice = selectedInvoiceId !== null
+  ? invoices.find((inv) => inv.invoice_id === selectedInvoiceId)
+  : null;
+
+const componentRef = useRef<HTMLDivElement | null>(null);
+const orientation: "portrait" | "landscape" = "portrait";
+
+const handleDownloadPDF = async () => {
+  if (!componentRef.current || !selectedInvoice) return;
+  const element = componentRef.current;
+  const canvas = await html2canvas(element, { scale: 2 });
+
+  const data = canvas.toDataURL("image/png");
+  const pdf = new jsPDF(orientation === "portrait" ? "p" : "l", "mm", "a4");
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`Invoice_${selectedInvoice.invoice_id}.pdf`);
+};
+
+
   return (
     <Layout>
       <div className="dashboard-container">
@@ -163,7 +189,7 @@ const InvoiceDashboard: React.FC = () => {
         </div>
 
         <div className="actions">
-          <button onClick={handleCreate}>Create Invoice</button>
+          {/* <button onClick={handleCreate}>Create Invoice</button> */}
           <button onClick={handleRefresh}>Refresh</button>
         </div>
 
@@ -216,7 +242,8 @@ const InvoiceDashboard: React.FC = () => {
                   <td>{inv.finalAmount}</td>
                   <td>{new Date(inv.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <button onClick={() => handleEdit(inv.invoice_id)}>Edit</button>
+                    {/* <button onClick={() => handleEdit(inv.invoice_id)}>Edit</button> */}
+                    <button onClick={handleDownloadPDF}>Download PDF</button>
                   </td>
                 </tr>
               ))}
@@ -232,6 +259,87 @@ const InvoiceDashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Hidden Printable Invoice */}
+      {selectedInvoice && (
+        <div
+          ref={componentRef}
+          className="invoice-print-area"
+          style={{
+            display: showPrintModal ? "none" : "block",
+            background: "#000",
+            padding: "30px",
+          }}
+        >
+          
+        <div style={{ margin: "0 60px" }}>
+          <div className="invoice-header">
+            {includeLogo && (
+              <img src={companyLogo} alt="Company Logo" className="invoice-logo" />
+            )}
+            <div className="company-details">
+              <h2>Nova Residency</h2>
+              <p>123 Business Street, City, State</p>
+              <p>Email: info@company.com | Phone: +91 98765 43210</p>
+            </div>
+          </div>
+
+          <hr />
+
+          <div className="invoice-meta">
+            <p><strong>Invoice ID:</strong> {selectedInvoice.invoiceId}</p>
+            <p><strong>Booking ID:</strong> {selectedInvoice.bookingId}</p>
+            <p><strong>Date:</strong> {new Date(selectedInvoice.createdAt).toLocaleString()}</p>
+            <p><strong>User:</strong> {selectedInvoice.user}</p>
+          </div>
+
+          <table className="invoice-items-table">
+            <thead>
+              <tr >
+                <th style={{backgroundColor:"#667eea"}}>Description</th>
+                <th style={{backgroundColor:"#667eea"}}>Qty</th>
+                <th style={{backgroundColor:"#667eea"}}>Unit Price</th>
+                <th style={{backgroundColor:"#667eea"}}>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedInvoice.items.map((item, idx) => (
+                <tr key={idx}>
+                  <td>{item.description}</td>
+                  <td>{item.quantity}</td>
+                  <td>₹{item.unitPrice}</td>
+                  <td>₹{item.subtotal}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="invoice-summary">
+            <p><strong>Total:</strong> ₹{selectedInvoice.totalAmount}</p>
+            <p><strong>Tax:</strong> ₹{selectedInvoice.tax}</p>
+            <p><strong>Discount:</strong> ₹{selectedInvoice.discount}</p>
+            <h3><strong>Final Amount:</strong> ₹{selectedInvoice.finalAmount}</h3>
+          </div>
+
+              <div className="invoice-terms" style={{ marginTop: "20px", textAlign: "left" }}>
+              <h4>Terms & Conditions</h4>
+              <p>• Full payment confirms booking.</p>
+              <p>• Check-in: 2:00 PM | Check-out: 11:00 AM.</p>
+              <p>• No cancellation or refund once booked.</p>
+              <p>• No smoking or alcohol allowed on the property.</p>
+              <p>• Damage to property will be charged to the guest.</p>
+              <p>• Extra guests not allowed beyond room capacity.</p>
+              <p>• Management not liable for loss of valuables.</p>
+            </div>
+
+
+          <div className="invoice-footer">
+            <p>Thank you for your business!</p>
+          </div>
+          
+          </div>
+        </div>
+      )}
       </div>
     </Layout>
   );

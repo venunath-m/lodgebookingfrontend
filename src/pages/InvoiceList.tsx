@@ -17,8 +17,8 @@ interface InvoiceItem {
 }
 
 interface Invoice {
-  invoice_id: number;
-  booking_id: number;
+  invoiceId: number;
+  bookingId: number;
   user: string | number;
   totalAmount: number;
   tax: number;
@@ -65,7 +65,7 @@ const handlePrint = useReactToPrint({
   // @ts-ignore
   content: () => componentRef.current,
   documentTitle: selectedInvoice
-    ? `Invoice_${selectedInvoice.invoice_id}`
+    ? `Invoice_${selectedInvoice.invoiceId}`
     : "Invoice",
   pageStyle: `
     @page { size: ${orientation}; margin: 15mm; }
@@ -98,7 +98,7 @@ const handlePrint = useReactToPrint({
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Invoice_${selectedInvoice.invoice_id}.pdf`);
+    pdf.save(`Invoice_${selectedInvoice.invoiceId}.pdf`);
   };
 
   return (
@@ -125,12 +125,12 @@ const handlePrint = useReactToPrint({
             </thead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.invoice_id}>
-                  <td>{inv.invoice_id}</td>
-                  <td>{inv.booking_id}</td>
+                <tr key={inv.invoiceId}>
+                  <td>{inv.invoiceId}</td>
+                  <td>{inv.bookingId}</td>
                   <td>{inv.user}</td>
                   <td>₹{inv.totalAmount}</td>
-                  <td>₹{inv.tax}</td>
+                  <td>{inv.tax}%</td>
                   <td>₹{inv.discount}</td>
                   <td><strong>₹{inv.finalAmount}</strong></td>
                   <td>{new Date(inv.createdAt).toLocaleString()}</td>
@@ -138,7 +138,7 @@ const handlePrint = useReactToPrint({
                     <button onClick={() => openPrintModal(inv)}>Print</button>
                     <button onClick={() => {
                       const invoiceData = encodeURIComponent(JSON.stringify(inv));
-                      window.open(`/invoice/preview/${inv.invoice_id}?data=${invoiceData}`, "_blank");
+                      window.open(`/invoice/preview/${inv.invoiceId}?data=${invoiceData}`, "_blank");
                     }}>PDF</button>
                   </td>
                 </tr>
@@ -150,11 +150,11 @@ const handlePrint = useReactToPrint({
 
       {/* Print Preview Modal */}
       {showPrintModal && selectedInvoice && (
-        <div className="print-modal-overlay">
-          <div className="print-modal">
+        <div className="print-modal-overlay" >
+          <div className="print-modal"style={{background:"#30495aff",}}>
             <h3>🖨️ Print Preview Settings</h3>
 
-            <label>
+            <label style={{ color:"#fff" }}>
               <input
                 type="checkbox"
                 checked={includeLogo}
@@ -163,7 +163,7 @@ const handlePrint = useReactToPrint({
               Include Company Logo
             </label>
 
-            <label style={{ marginTop: "10px" }}>
+            <label style={{ marginTop: "10px",color:"#fff" }}>
               Page Orientation:
               <select
                 value={orientation}
@@ -193,16 +193,18 @@ const handlePrint = useReactToPrint({
           className="invoice-print-area"
           style={{
             display: showPrintModal ? "none" : "block",
-            background: "white",
+            background: "#000",
             padding: "30px",
           }}
         >
+          
+        <div style={{ margin: "0 60px" }}>
           <div className="invoice-header">
             {includeLogo && (
               <img src={companyLogo} alt="Company Logo" className="invoice-logo" />
             )}
             <div className="company-details">
-              <h2>Your Company Name</h2>
+              <h2>Nova Residency</h2>
               <p>123 Business Street, City, State</p>
               <p>Email: info@company.com | Phone: +91 98765 43210</p>
             </div>
@@ -211,19 +213,19 @@ const handlePrint = useReactToPrint({
           <hr />
 
           <div className="invoice-meta">
-            <p><strong>Invoice ID:</strong> {selectedInvoice.invoice_id}</p>
-            <p><strong>Booking ID:</strong> {selectedInvoice.booking_id}</p>
+            <p><strong>Invoice ID:</strong> {selectedInvoice.invoiceId}</p>
+            <p><strong>Booking ID:</strong> {selectedInvoice.bookingId}</p>
             <p><strong>Date:</strong> {new Date(selectedInvoice.createdAt).toLocaleString()}</p>
             <p><strong>User:</strong> {selectedInvoice.user}</p>
           </div>
 
           <table className="invoice-items-table">
             <thead>
-              <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
+              <tr >
+                <th style={{backgroundColor:"#667eea"}}>Description</th>
+                <th style={{backgroundColor:"#667eea"}}>Qty</th>
+                <th style={{backgroundColor:"#667eea"}}>Unit Price</th>
+                <th style={{backgroundColor:"#667eea"}}>Subtotal</th>
               </tr>
             </thead>
             <tbody>
@@ -245,8 +247,22 @@ const handlePrint = useReactToPrint({
             <h3><strong>Final Amount:</strong> ₹{selectedInvoice.finalAmount}</h3>
           </div>
 
+              <div className="invoice-terms" style={{ marginTop: "20px", textAlign: "left" }}>
+              <h4>Terms & Conditions</h4>
+              <p>• Full payment confirms booking.</p>
+              <p>• Check-in: 2:00 PM | Check-out: 11:00 AM.</p>
+              <p>• No cancellation or refund once booked.</p>
+              <p>• No smoking or alcohol allowed on the property.</p>
+              <p>• Damage to property will be charged to the guest.</p>
+              <p>• Extra guests not allowed beyond room capacity.</p>
+              <p>• Management not liable for loss of valuables.</p>
+            </div>
+
+
           <div className="invoice-footer">
             <p>Thank you for your business!</p>
+          </div>
+          
           </div>
         </div>
       )}

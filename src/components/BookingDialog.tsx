@@ -1,196 +1,327 @@
+
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { Room } from "../types";
+import API from "../api/axios";
 
 interface BookingDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    startDate: string;
-    endDate: string;
-    males: number;
-    females: number;
-    document?: File;
-    roomId?: number;
-    name?: string;
-    mobile?: string;
-    checkInDate?: string;
-    checkInTime?: string;
-    checkOutDate?: string;
-    checkOutTime?: string;
-    customerGstNo?: string;
-    roomNo?: string;
-    numberOfDates?: number;
-    totalNoPeople?: number;
-    bookingSource?: string;
-    safe?: boolean;
-  }) => void;
-  rooms?: Room[];
+  onConfirm: (data: any) => void;
   initialData?: any;
+  token: string;
 }
 
 const BookingDialog: React.FC<BookingDialogProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  rooms,
   initialData,
+  token,
 }) => {
+  const nowISO = new Date().toISOString().slice(0, 16);
+
+  // Booking & customer states
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [roomId, setRoomId] = useState<number>(initialData?.roomId || 0);
+  const [roomSearch, setRoomSearch] = useState("");
+  const [roomNo, setRoomNo] = useState(initialData?.roomNo || "");
   const [startDate, setStartDate] = useState(initialData?.startDate || "");
   const [endDate, setEndDate] = useState(initialData?.endDate || "");
   const [males, setMales] = useState(initialData?.males || 0);
   const [females, setFemales] = useState(initialData?.females || 0);
-  const [uploadedDocument, setUploadedDocument] = useState<File | null>(null);
+  const [totalNoPeople, setTotalNoPeople] = useState(initialData?.totalNoPeople || 0);
+  const [numberOfNights, setNumberOfNights] = useState(initialData?.numberOfNights || 0);
+  const [bookingNumber, setBookingNumber] = useState(initialData?.bookingNumber || "");
 
-  // ✅ New Fields
+
   const [name, setName] = useState(initialData?.name || "");
   const [mobile, setMobile] = useState(initialData?.mobile || "");
-  const [checkInDate, setCheckInDate] = useState(initialData?.checkInDate || "");
-  const [checkInTime, setCheckInTime] = useState(initialData?.checkInTime || "");
-  const [checkOutDate, setCheckOutDate] = useState(initialData?.checkOutDate || "");
-  const [checkOutTime, setCheckOutTime] = useState(initialData?.checkOutTime || "");
+  const [address, setAddress] = useState(initialData?.address || "");
+  const [checkinDateTime, setCheckinDateTime] = useState(initialData?.checkinDateTime || nowISO);
+  const [checkoutDateTime, setCheckoutDateTime] = useState(initialData?.checkoutDateTime || nowISO);
   const [customerGstNo, setCustomerGstNo] = useState(initialData?.customerGstNo || "");
-  const [roomNo, setRoomNo] = useState(initialData?.roomNo || "");
-  const [numberOfDates, setNumberOfDates] = useState(initialData?.numberOfDates || 0);
-  const [totalNoPeople, setTotalNoPeople] = useState(initialData?.totalNoPeople || 0);
-  const [bookingSource, setBookingSource] = useState(initialData?.bookingSource || "");
+  const [bookingSource, setBookingSource] = useState(initialData?.bookingSource || "Walk In");
+  const [paymentMethod, setPaymentMethod] = useState(initialData?.paymentMethod || "");
   const [safe, setSafe] = useState(initialData?.safe || false);
+  const [uploadedDocument, setUploadedDocument] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // ✅ Keep form synced when dialog reopens
+  // Fetch rooms from API
+  const fetchRooms = async () => {
+    try {
+      const res = await API.get("/rooms", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.items)
+        ? res.data.items
+        : [];
+      setRooms(data);
+    } catch (err) {
+      console.error("Error fetching rooms:", err);
+      setRooms([]);
+    }
+  };
+
+  // Reset form when dialog opens
   useEffect(() => {
     if (!isOpen) return;
+
     setRoomId(initialData?.roomId || 0);
+    setRoomNo(initialData?.roomNo || "");
+    setRoomSearch("");
     setStartDate(initialData?.startDate || "");
     setEndDate(initialData?.endDate || "");
     setMales(initialData?.males || 0);
     setFemales(initialData?.females || 0);
+    setTotalNoPeople(initialData?.totalNoPeople || 0);
+    setNumberOfNights(initialData?.numberOfNights || 0);
+
     setName(initialData?.name || "");
     setMobile(initialData?.mobile || "");
-    setCheckInDate(initialData?.checkInDate || "");
-    setCheckInTime(initialData?.checkInTime || "");
-    setCheckOutDate(initialData?.checkOutDate || "");
-    setCheckOutTime(initialData?.checkOutTime || "");
+    setAddress(initialData?.address || "");
+    setCheckinDateTime(initialData?.checkinDateTime || nowISO);
+    setCheckoutDateTime(initialData?.checkoutDateTime || nowISO);
     setCustomerGstNo(initialData?.customerGstNo || "");
-    setRoomNo(initialData?.roomNo || "");
-    setNumberOfDates(initialData?.numberOfDates || 0);
-    setTotalNoPeople(initialData?.totalNoPeople || 0);
-    setBookingSource(initialData?.bookingSource || "");
+    setBookingSource(initialData?.bookingSource || "Walk In");
+    setPaymentMethod(initialData?.paymentMethod || "");
     setSafe(initialData?.safe || false);
+    setUploadedDocument(null);
+    setPreviewUrl(null);
+
+    fetchRooms();
   }, [isOpen, initialData]);
 
+  // Auto total people
+  useEffect(() => {
+    setTotalNoPeople(males + females);
+  }, [males, females]);
+
+  // Auto calculate number of nights
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffMs = end.setHours(0, 0, 0, 0) - start.setHours(0, 0, 0, 0);
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      setNumberOfNights(diffDays > 0 ? diffDays : 0);
+    } else {
+      setNumberOfNights(0);
+    }
+  }, [startDate, endDate]);
+
+  // Update roomNo when roomId changes
+  useEffect(() => {
+    if (rooms && roomId) {
+      const selectedRoom = rooms.find((r) => r.id === roomId);
+      setRoomNo(selectedRoom?.name || "");
+    } else {
+      setRoomNo("");
+    }
+  }, [roomId, rooms]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setUploadedDocument(file);
+    if (file && file.type.startsWith("image/")) {
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
   const handleConfirm = () => {
-    if (!startDate || !endDate) return alert("Please select start and end dates");
+    if (!name || !mobile || !startDate || !endDate || !roomId) {
+      alert("Please fill required fields: Name, Mobile, Start Date, End Date, Room");
+      return;
+    }
+
+    const now = new Date().toISOString().slice(0, 16);
+
+    const formatDateTime = (dtStr: string) => {
+      let dt: Date;
+      if (!dtStr) {
+        dt = new Date();
+      } else {
+        dt = new Date(dtStr);
+      }
+
+      if (isNaN(dt.getTime())) dt = new Date();
+
+      return {
+        date: dt.toISOString().split("T")[0],
+        time: dt.toTimeString().split(" ")[0],
+      };
+    };
+
+    const { date: checkInDate, time: checkInTime } = formatDateTime(checkinDateTime || now);
+    const { date: checkOutDate, time: checkOutTime } = formatDateTime(checkoutDateTime || now);
+
     onConfirm({
+      bookingNumber, 
+      roomId,
+      roomNo,
       startDate,
       endDate,
       males,
       females,
-      document: uploadedDocument || undefined,
-      roomId: roomId || undefined,
+      totalNoPeople,
+      numberOfDates: numberOfNights,
       name,
       mobile,
+      address,
       checkInDate,
       checkInTime,
       checkOutDate,
       checkOutTime,
       customerGstNo,
-      roomNo,
-      numberOfDates,
-      totalNoPeople,
       bookingSource,
+      paymentMethod,
       safe,
+      document: uploadedDocument || undefined,
     });
+
     onClose();
   };
 
   if (!isOpen) return null;
-
   const modalRoot = document.getElementById("modal-root");
   if (!modalRoot) return null;
 
+  const labelStyle: React.CSSProperties = { display: "block", marginTop: 15, fontWeight: 500 };
+  const radioContainerStyle = { display: "flex", alignItems: "center", gap: 15, marginLeft: 50 };
+
+  // ✅ Improved room search — matches by name, type, or partial number
+  const filteredRooms = rooms.filter((r) => {
+    const query = roomSearch.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      r.name?.toLowerCase().includes(query) ||
+      r.type?.toLowerCase().includes(query) 
+    );
+  });
+
   return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg overflow-y-auto max-h-[90vh]">
-        <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
+    <div className="modal-overlay show">
+      <div className="modal-card show max-w-lg" style={{ minWidth: 800 }}>
+        <h2 className="text-xl font-bold mb-4">Booking Details</h2>
 
-        {/* ✅ Room Dropdown */}
-        {rooms && (
-          <>
-            <label className="block text-sm font-medium text-gray-700">Room</label>
-            <select
-              value={roomId}
-              onChange={(e) => setRoomId(Number(e.target.value))}
-              className="border rounded p-2 mb-3 w-full"
-            >
-              <option value={0}>Select a room</option>
-              {rooms.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name || r.name}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
+        {/* Searchable Room Dropdown */}
+        <label style={labelStyle}>Room *</label>
+        <input
+          type="text"
+          placeholder="Search by room name, number, or type..."
+          value={roomSearch}
+          onChange={(e) => setRoomSearch(e.target.value)}
+          className="w-full mb-2 border rounded px-2 py-1"
+        />
+        <select
+          value={roomId}
+          onChange={(e) => setRoomId(Number(e.target.value))}
+          className="w-full mb-3 border rounded px-2 py-1"
+        >
+          <option value={0}>Select a room</option>
+          {filteredRooms.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name} — ₹{r.price}
+            </option>
+          ))}
+        </select>
 
-        <div className="grid grid-cols-1 gap-3">
-          <label>Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="border rounded p-2" />
+        {/* Customer & Booking Fields */}
 
-          <label>Mobile</label>
-          <input value={mobile} onChange={(e) => setMobile(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Booking Number</label>
+        <input
+          value={bookingNumber}
+          onChange={(e) => setBookingNumber(e.target.value)}
+          className="w-full mb-3 border rounded px-2 py-1"
+        />
 
-          <label>Check-In Date</label>
-          <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Customer Name *</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Check-In Time</label>
-          <input type="time" value={checkInTime} onChange={(e) => setCheckInTime(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Mobile Number *</label>
+        <input value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Check-Out Date</label>
-          <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Customer Address</label>
+        <textarea value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: "100%" }} rows={3} />
 
-          <label>Check-Out Time</label>
-          <input type="time" value={checkOutTime} onChange={(e) => setCheckOutTime(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Start Date *</label>
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Customer GST No</label>
-          <input value={customerGstNo} onChange={(e) => setCustomerGstNo(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>End Date *</label>
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Room No</label>
-          <input value={roomNo} onChange={(e) => setRoomNo(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>Check-in Date & Time</label>
+        <input type="datetime-local" value={checkinDateTime} onChange={(e) => setCheckinDateTime(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Number of Dates</label>
-          <input type="number" value={numberOfDates} onChange={(e) => setNumberOfDates(Number(e.target.value))} className="border rounded p-2" />
+        <label style={labelStyle}>Check-out Date & Time</label>
+        <input type="datetime-local" value={checkoutDateTime} onChange={(e) => setCheckoutDateTime(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Total No. of People</label>
-          <input type="number" value={totalNoPeople} onChange={(e) => setTotalNoPeople(Number(e.target.value))} className="border rounded p-2" />
+        <label style={labelStyle}>No. of Males</label>
+        <input type="number" value={males} min={0} onChange={(e) => setMales(Number(e.target.value))} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label>Booking Source</label>
-          <input value={bookingSource} onChange={(e) => setBookingSource(e.target.value)} className="border rounded p-2" />
+        <label style={labelStyle}>No. of Females</label>
+        <input type="number" value={females} min={0} onChange={(e) => setFemales(Number(e.target.value))} className="w-full mb-3 border rounded px-2 py-1" />
 
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} />
-            Safe Booking
-          </label>
+        <label style={labelStyle}>Total No. of People</label>
+        <input type="number" value={totalNoPeople} disabled className="w-full mb-3 border rounded px-2 py-1 bg-gray-100" />
 
-          {/* ✅ File upload */}
-          <label>Upload Document</label>
-          <input
-            type="file"
-            onChange={(e) => setUploadedDocument(e.target.files?.[0] || null)}
-            className="border rounded p-2"
-          />
+        <label style={labelStyle}>Number of Nights</label>
+        <input type="text" value={numberOfNights} readOnly className="w-full mb-3 border rounded px-2 py-1 bg-gray-100" />
+
+        <label style={labelStyle}>Customer GST No</label>
+        <input value={customerGstNo} onChange={(e) => setCustomerGstNo(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+
+        {/* Payment Mode */}
+        <label style={labelStyle}>Payment Mode (optional)</label>
+        <div style={radioContainerStyle}>
+          {["Cash", "UPI", "Online"].map((mode) => (
+            <label key={mode} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <input type="radio" name="paymentMode" value={mode} checked={paymentMethod === mode} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: 13, height: 13 }} />
+              {mode}
+            </label>
+          ))}
         </div>
 
-        <div className="mt-5 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+        {/* Booking Source */}
+        <label style={labelStyle}>Booking Source</label>
+        <div style={radioContainerStyle}>
+          {["Online", "Walk In"].map((source) => (
+            <label key={source} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <input type="radio" name="bookingSource" value={source} checked={bookingSource === source} onChange={(e) => setBookingSource(e.target.value)} style={{ width: 13, height: 13 }} />
+              {source}
+            </label>
+          ))}
+        </div>
+
+        {/* Safe checkbox */}
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, marginTop: 12 }}>
+          <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} style={{ width: 16, height: 16 }} />
+          <span>Safe Booking</span>
+        </label>
+
+        {/* Upload Document */}
+        <label style={labelStyle}>Upload Document (optional)</label>
+        <input type="file" accept="image/*,.pdf" onChange={handleFileChange} className="w-full mb-3 border rounded px-2 py-1" />
+        {previewUrl && (
+          <div className="mt-3">
+            <p className="text-sm text-gray-600 mb-1">Preview:</p>
+            <img src={previewUrl} alt="Preview" className="w-28 h-20 object-cover rounded border" />
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">
             Cancel
           </button>
-          <button
-            onClick={handleConfirm}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
+          <button onClick={handleConfirm} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             Confirm
           </button>
         </div>
