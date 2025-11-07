@@ -69,3 +69,4 @@ export default tseslint.config([
 ```
 npm install lucide-react
 npm install jspdf html2canvas react-to-print
+npm install axios

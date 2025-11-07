@@ -1,445 +1,21 @@
-
-
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import API from "../api/axios";
-// import { useAuth } from "../context/useAuth";
-// import Layout from "../components/DashboardLayout";
-// import "./InvoiceForm.css";
-// import { useNavigate } from "react-router-dom";
-
-// interface Booking {
-//   id: number;
-//   status: string;
-//   roomId: number;
-//   startDate: string;
-//   endDate: string;
-// }
-
-// interface Room {
-//   id: number;
-//   name: string;
-//   type: string;
-//   price: number;
-//   description: string;
-//   imageUrl: string;
-// }
-
-// interface InvoiceItem {
-//   description: string;
-//   quantity: number;
-//   unitPrice: number;
-//   subtotal: number;
-//   serviceId?: number | null;
-// }
-
-// interface InvoiceResponse {
-//   invoiceId: number;
-//   bookingId: number;
-//   totalAmount: number;
-//   tax: number;
-//   discount: number;
-//   finalAmount: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   reason?: string;
-//   items: InvoiceItem[];
-//   customerName?: string;
-//   mobile?: string;
-//   roomNo?: string;
-//   room?: string;
-//   checkInDate?: string;
-//   checkOutDate?: string;
-//   checkInTime?: string;
-//   checkOutTime?: string;
-//   bookingSource?: string;
-//   safe?: boolean;
-//   gstNo?: string;
-//   numberOfDates?: number;
-//   totalNoPeople?: number;
-// }
-
-// interface Props {
-//   invoiceId?: number;
-// }
-
-// const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
-//   const { token } = useAuth();
-//   const navigate = useNavigate();
-
-//   const [bookings, setBookings] = useState<Booking[]>([]);
-//   const [filtered, setFiltered] = useState<Booking[]>([]);
-//   const [rooms, setRooms] = useState<Room[]>([]);
-//   const [bookingId, setBookingId] = useState<number>(0);
-//   const [items, setItems] = useState<InvoiceItem[]>([]);
-//   const [tax, setTax] = useState<number>(0);
-//   const [discount, setDiscount] = useState<number>(0);
-//   const [reason, setReason] = useState<string>("");
-//   const [finalAmount, setFinalAmount] = useState<number>(0);
-//   const [invoiceSnapshot, setInvoiceSnapshot] = useState<InvoiceResponse | null>(null);
-//   const [fromDate, setFromDate] = useState("");
-//   const [toDate, setToDate] = useState("");
-
-//   // 🧮 Recalculate final amount
-//   useEffect(() => {
-//     const total = items.reduce((sum, i) => sum + i.subtotal, 0);
-//     setFinalAmount(total * tax - discount);
-//   }, [items, tax, discount]);
-
-//   // 📦 Fetch Bookings
-//   const fetchBookings = async () => {
-//     try {
-//       const res = await API.get("/bookings/me", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       const data = Array.isArray(res.data)
-//         ? res.data
-//         : Array.isArray(res.data.items)
-//         ? res.data.items
-//         : [];
-
-//       console.log("📘 Bookings fetched:", data);
-//       setBookings(data);
-//       setFiltered(data);
-//     } catch (err) {
-//       console.error("Error fetching bookings:", err);
-//       setBookings([]);
-//     }
-//   };
-
-//   // 🏨 Fetch Rooms
-//   const fetchRooms = async () => {
-//     try {
-//       const res = await API.get("/rooms", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       const data = Array.isArray(res.data)
-//         ? res.data
-//         : Array.isArray(res.data.items)
-//         ? res.data.items
-//         : [];
-
-//       console.log("🏠 Rooms fetched:", data);
-//       setRooms(data);
-//     } catch (err) {
-//       console.error("Error fetching rooms:", err);
-//       setRooms([]);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (token) {
-//       fetchBookings();
-//       fetchRooms();
-//     }
-//   }, [token]);
-
-//   // 🧾 Load existing invoice for edit
-//   useEffect(() => {
-//     if (!invoiceId || !token) return;
-
-//     API.get<InvoiceResponse>(`/invoices/${invoiceId}`, {
-//       headers: { Authorization: `Bearer ${token}` },
-//     })
-//       .then((res) => {
-//         const inv = res.data;
-//         setInvoiceSnapshot(inv);
-//         setBookingId(inv.bookingId);
-//         setItems(inv.items || []);
-//         setTax(inv.tax || 0);
-//         setDiscount(inv.discount || 0);
-//         setReason(inv.reason || "");
-//       })
-//       .catch((err) => {
-//         console.error("Error loading invoice:", err);
-//         alert("Error loading invoice");
-//       });
-//   }, [invoiceId, token]);
-
-//   // 🔍 Filter Bookings by date
-//   const handleFilter = () => {
-//     let result = bookings;
-//     if (fromDate)
-//       result = result.filter((b) => new Date(b.startDate) >= new Date(fromDate));
-//     if (toDate)
-//       result = result.filter((b) => new Date(b.endDate) <= new Date(toDate));
-//     setFiltered(result);
-//   };
-
-//   // 🧮 Update item
-//   const handleItemChange = (index: number, field: string, value: string | number) => {
-//     const newItems = [...items];
-//     if (field === "description") newItems[index].description = String(value);
-//     if (field === "quantity") newItems[index].quantity = Number(value);
-//     if (field === "unitPrice") newItems[index].unitPrice = Number(value);
-//     newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
-//     setItems(newItems);
-//   };
-
-//   // ➕ Add new item
-//   const addItem = () => {
-//     setItems([...items, { description: "", quantity: 1, unitPrice: 0, subtotal: 0 }]);
-//   };
-
-//   // ❌ Remove item
-//   const removeItem = (index: number) => {
-//     setItems(items.filter((_, i) => i !== index));
-//   };
-
-//   // 🏨 On selecting booking → add room automatically
-//   const handleBookingSelect = (id: number) => {
-//     setBookingId(id);
-//     const selected = filtered.find((b) => b.id === id);
-//     if (!selected) return;
-
-//     const room = rooms.find((r) => r.id === Number(selected.roomId));
-//     if (!room) {
-//       alert("Room details not found for selected booking");
-//       return;
-//     }
-
-//     const start = new Date(selected.startDate);
-//     const end = new Date(selected.endDate);
-//     const diffDays = Math.max(
-//       1,
-//       Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-//     );
-
-//     const newItem: InvoiceItem = {
-//       description: `Room: ${room.name}`,
-//       quantity: diffDays,
-//       unitPrice: room.price,
-//       subtotal: diffDays * room.price,
-//     };
-
-//     setItems([newItem]);
-//   };
-
-//   // 💾 Submit Invoice
-//   const handleSubmit = async () => {
-//     if (!token) return alert("Not authenticated");
-//     if (!bookingId) return alert("Please select a booking");
-
-//     const payload = { bookingId, items, tax, discount, reason };
-
-//     try {
-//       let res;
-//       if (invoiceId) {
-//         if (!reason) return alert("Reason is required for edit");
-//         res = await API.put(`/invoices/${invoiceId}`, payload, {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-//       } else {
-//         res = await API.post("/invoices", payload, {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-//       }
-
-//       const newInvoice = res.data;
-//       const newInvoiceId = invoiceId || newInvoice.invoiceId;
-//       alert(`Invoice ${invoiceId ? "updated" : "created"} successfully!`);
-//       navigate(`/invoice/preview/${newInvoiceId}`, {
-//         state: { invoice: newInvoice },
-//       });
-//     } catch (err: any) {
-//       console.error(err);
-//       alert(err.response?.data?.detail || "Error creating/updating invoice");
-//     }
-//   };
-
-//   // 🖥️ UI
-//   return (
-//     <Layout>
-//       <div className="invoice-form-container">
-//         <h2>{invoiceId ? "Edit Invoice" : "Create Invoice"}</h2>
-
-//         {/* Filters */}
-//         <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-//           <div>
-//             <label>From: </label>
-//             <input
-//               type="date"
-//               value={fromDate}
-//               onChange={(e) => setFromDate(e.target.value)}
-//             />
-//           </div>
-//           <div>
-//             <label>To: </label>
-//             <input
-//               type="date"
-//               value={toDate}
-//               onChange={(e) => setToDate(e.target.value)}
-//             />
-//           </div>
-//           <button onClick={handleFilter} style={{ padding: "4px 10px" }}>
-//             Apply Filter
-//           </button>
-//         </div>
-
-//         {/* Booking Dropdown */}
-//         <div className="form-group">
-//           <label>Booking:</label>
-//           <select
-//             disabled={filtered.length === 0}
-//             value={bookingId}
-//             onChange={(e) => handleBookingSelect(Number(e.target.value))}
-//           >
-//             <option value={0}>-- Select Booking --</option>
-//             {filtered.map((b) => (
-//               <option key={b.id} value={b.id}>
-//                 {`Booking #${b.id} | ${b.status} | ${b.startDate} → ${b.endDate}`}
-//               </option>
-//             ))}
-//           </select>
-//           {filtered.length === 0 && (
-//             <p style={{ color: "#888" }}>No bookings found — check filter or token</p>
-//           )}
-//         </div>
-
-//         {/* Items Table */}
-//         <h3>Items</h3>
-//         <table className="invoice-items-table">
-//           <thead>
-//             <tr style={{ color: "#667eea" }}>
-//               <th>Description</th>
-//               <th>Qty</th>
-//               <th>Unit Price</th>
-//               <th>Subtotal</th>
-//               <th>Action</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {items.map((item, idx) => (
-//               <tr key={idx}>
-//                 <td>
-//                   <input
-//                     type="text"
-//                     value={item.description}
-//                     onChange={(e) =>
-//                       handleItemChange(idx, "description", e.target.value)
-//                     }
-//                   />
-//                 </td>
-//                 <td>
-//                   <input
-//                     type="number"
-//                     min={1}
-//                     value={item.quantity}
-//                     onChange={(e) =>
-//                       handleItemChange(idx, "quantity", e.target.value)
-//                     }
-//                   />
-//                 </td>
-//                 <td>
-//                   <input
-//                     type="number"
-//                     min={0}
-//                     value={item.unitPrice}
-//                     onChange={(e) =>
-//                       handleItemChange(idx, "unitPrice", e.target.value)
-//                     }
-//                   />
-//                 </td>
-//                 <td>{item.subtotal}</td>
-//                 <td>
-//                   <button onClick={() => removeItem(idx)}>Remove</button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-
-//         <button onClick={addItem}>Add Item</button>
-
-//         {/* Tax & Discount */}
-//         <div className="form-group">
-//           <label>Tax:</label>
-//           <input
-//             type="number"
-//             min={0}
-//             value={tax}
-//             onChange={(e) => setTax(Number(e.target.value))}
-//           />
-//         </div>
-//         <div className="form-group">
-//           <label>Discount:</label>
-//           <input
-//             type="number"
-//             min={0}
-//             value={discount}
-//             onChange={(e) => setDiscount(Number(e.target.value))}
-//           />
-//         </div>
-
-//         {invoiceId && (
-//           <div className="form-group">
-//             <label>Reason for Edit:</label>
-//             <input
-//               type="text"
-//               value={reason}
-//               onChange={(e) => setReason(e.target.value)}
-//             />
-//           </div>
-//         )}
-
-//         <h3>Final Amount: ₹{finalAmount}</h3>
-//         <button className="submit-btn" onClick={handleSubmit}>
-//           {invoiceId ? "Update" : "Create"} Invoice
-//         </button>
-
-//         {invoiceSnapshot && (
-//           <div className="invoice-preview">
-//             <h3>Invoice Preview</h3>
-//             <p><b>Customer:</b> {invoiceSnapshot.customerName}</p>
-//             <p><b>Mobile:</b> {invoiceSnapshot.mobile}</p>
-//             <p>
-//               <b>Room:</b> {invoiceSnapshot.room} ({invoiceSnapshot.roomNo})
-//             </p>
-//             <p>
-//               <b>Check-in:</b> {invoiceSnapshot.checkInDate}{" "}
-//               {invoiceSnapshot.checkInTime}
-//             </p>
-//             <p>
-//               <b>Check-out:</b> {invoiceSnapshot.checkOutDate}{" "}
-//               {invoiceSnapshot.checkOutTime}
-//             </p>
-//             <p>
-//               <b>Final Amount:</b> ₹{invoiceSnapshot.finalAmount}
-//             </p>
-//           </div>
-//         )}
-//       </div>
-//     </Layout>
-//   );
-// };
-
-// export default InvoiceForm;
-
 "use client";
 import React, { useEffect, useState } from "react";
 import API from "../api/axios";
 import { useAuth } from "../context/useAuth";
 import Layout from "../components/DashboardLayout";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./InvoiceForm.css";
-import { useNavigate } from "react-router-dom";
 
 interface Booking {
   id: number;
   status: string;
-  roomId: number;
   startDate: string;
   endDate: string;
-}
-
-interface Room {
-  id: number;
-  name: string;
-  type: string;
-  price: number;
-  description: string;
-  imageUrl: string;
+  room?: {
+    id: number;
+    name: string;
+    price: number;
+  };
 }
 
 interface InvoiceItem {
@@ -453,208 +29,147 @@ interface InvoiceItem {
 interface InvoiceResponse {
   invoiceId: number;
   bookingId: number;
-  totalAmount: number;
+  items: InvoiceItem[];
   tax: number;
   discount: number;
   finalAmount: number;
-  createdAt: string;
-  updatedAt: string;
   reason?: string;
-  items: InvoiceItem[];
-  customerName?: string;
-  mobile?: string;
-  roomNo?: string;
-  room?: string;
-  checkInDate?: string;
-  checkOutDate?: string;
-  checkInTime?: string;
-  checkOutTime?: string;
-  bookingSource?: string;
-  safe?: boolean;
-  gstNo?: string;
-  numberOfDates?: number;
-  totalNoPeople?: number;
+  invoiceNumber: string;
 }
 
-interface Props {
-  invoiceId?: number;
-}
-
-const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
+const InvoiceForm: React.FC = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
-  const [nextInvoiceNumber, setNextInvoiceNumber] = useState("");
+  const location = useLocation();
+  const stateInvoice = (location.state as any)?.invoice as InvoiceResponse;
 
+  // State
+  const [invoiceId] = useState<number | null>(stateInvoice?.invoiceId || null);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filtered, setFiltered] = useState<Booking[]>([]);
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [bookingId, setBookingId] = useState<number>(0);
-  const [items, setItems] = useState<InvoiceItem[]>([]);
-  const [tax, setTax] = useState<number>(0);
-  const [discount, setDiscount] = useState<number>(0);
-  const [reason, setReason] = useState<string>("");
-  const [finalAmount, setFinalAmount] = useState<number>(0);
-  const [invoiceSnapshot, setInvoiceSnapshot] = useState<InvoiceResponse | null>(null);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [bookingId, setBookingId] = useState<number | null>(stateInvoice?.bookingId || null);
+  const [items, setItems] = useState<InvoiceItem[]>(stateInvoice?.items || []);
+  const [tax, setTax] = useState<number>(stateInvoice?.tax || 0);
+  const [discount, setDiscount] = useState<number>(stateInvoice?.discount || 0);
+  const [reason, setReason] = useState<string>(stateInvoice?.reason || "");
+  const [finalAmount, setFinalAmount] = useState<number>(stateInvoice?.finalAmount || 0);
+  const [nextInvoiceNumber, setNextInvoiceNumber] = useState<string>("");
 
-  // 🧮 Recalculate final amount
+  // Recalculate final amount whenever items, tax, or discount change
   useEffect(() => {
     const total = items.reduce((sum, i) => sum + i.subtotal, 0);
     const taxAmount = (total * tax) / 100;
-    setFinalAmount(total + taxAmount - discount);
-
+    setFinalAmount(Number((total + taxAmount - discount).toFixed(2)));
   }, [items, tax, discount]);
-  useEffect(() => {
-    const fetchNextInvoiceNumber = async (bookingId?: number) => {
-      if (!token) return;
 
-      try {
-        const res = await API.get("/invoices/next-number", {
-          headers: { Authorization: `Bearer ${token}` },
-          params: bookingId ? { booking_id: bookingId } : {},
-        });
-        setNextInvoiceNumber(res.data.invoiceNumber);
-      } catch (err) {
-        console.error("Error fetching next invoice number", err);
-      }
-    };
-
-    // Fetch number initially if creating new invoice
-    if (!invoiceId) fetchNextInvoiceNumber(bookingId);
-  }, [token, bookingId, invoiceId]);
-  // 📦 Fetch Bookings
+  // Fetch bookings
   const fetchBookings = async () => {
+    if (!token) return;
     try {
       const res = await API.get("/bookings/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      const data = Array.isArray(res.data)
+      const data: Booking[] = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data.items)
           ? res.data.items
           : [];
-
-      console.log("📘 Bookings fetched:", data);
       setBookings(data);
-      setFiltered(data);
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setBookings([]);
     }
   };
 
-  // 🏨 Fetch Rooms
-  const fetchRooms = async () => {
+  // Fetch next invoice number
+  const fetchNextInvoiceNumber = async (bookingId?: number) => {
+    if (!token) return;
     try {
-      const res = await API.get("/rooms", {
+      const res = await API.get("/invoices/next-number", {
         headers: { Authorization: `Bearer ${token}` },
+        params: bookingId ? { booking_id: bookingId } : {},
       });
-
-      const data = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data.items)
-          ? res.data.items
-          : [];
-
-      console.log("🏠 Rooms fetched:", data);
-      setRooms(data);
+      setNextInvoiceNumber(res.data.invoiceNumber);
     } catch (err) {
-      console.error("Error fetching rooms:", err);
-      setRooms([]);
+      console.error("Error fetching next invoice number:", err);
     }
   };
 
+  // Load initial data
   useEffect(() => {
-    if (token) {
-      fetchBookings();
-      fetchRooms();
-    }
+    if (!token) return;
+    fetchBookings();
+    if (!invoiceId) fetchNextInvoiceNumber();
   }, [token]);
 
-  // 🧾 Load existing invoice for edit
+  // Auto-select booking and populate items when editing
   useEffect(() => {
-    if (!invoiceId || !token) return;
+  if (!bookings.length) return;
+  if (invoiceId && stateInvoice) {
+    // Use existing invoice items
+    setBookingId(stateInvoice.bookingId);
+    setItems(stateInvoice.items || []);
+    return; // STOP here, don’t recalc from booking
+  }
 
-    API.get<InvoiceResponse>(`/invoices/${invoiceId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        const inv = res.data;
-        setInvoiceSnapshot(inv);
-        setBookingId(inv.bookingId);
-        setItems(inv.items || []);
-        setTax(inv.tax || 0);
-        setDiscount(inv.discount || 0);
-        setReason(inv.reason || "");
-      })
-      .catch((err) => {
-        console.error("Error loading invoice:", err);
-        alert("Error loading invoice");
-      });
-  }, [invoiceId, token]);
+  if (stateInvoice?.bookingId) {
+    const selectedBooking = bookings.find(b => b.id === stateInvoice.bookingId);
+    if (!selectedBooking) return;
+    setBookingId(selectedBooking.id);
 
-  // 🔍 Filter Bookings by date
-  const handleFilter = () => {
-    let result = bookings;
-    if (fromDate)
-      result = result.filter((b) => new Date(b.startDate) >= new Date(fromDate));
-    if (toDate)
-      result = result.filter((b) => new Date(b.endDate) <= new Date(toDate));
-    setFiltered(result);
+    const start = new Date(selectedBooking.startDate);
+    const end = new Date(selectedBooking.endDate);
+    const diffDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+
+    setItems([
+      {
+        description: `Room: ${selectedBooking.room?.name || ""}`,
+        quantity: diffDays,
+        unitPrice: selectedBooking.room?.price || 0,
+        subtotal: diffDays * (selectedBooking.room?.price || 0),
+      },
+    ]);
+
+    if (!invoiceId) fetchNextInvoiceNumber(selectedBooking.id);
+  }
+}, [bookings, stateInvoice, invoiceId]);
+
+  // Handle booking selection from dropdown
+  const handleBookingSelect = (id: number) => {
+    const selected = bookings.find(b => b.id === id);
+    if (!selected || !selected.room) return;
+
+    setBookingId(id);
+
+    const start = new Date(selected.startDate);
+    const end = new Date(selected.endDate);
+    const diffDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+
+    setItems([
+      {
+        description: `Room: ${selected.room.name}`,
+        quantity: diffDays,
+        unitPrice: selected.room.price,
+        subtotal: diffDays * selected.room.price,
+      },
+    ]);
+
+    if (!invoiceId) fetchNextInvoiceNumber(id);
   };
 
-  // 🧮 Update item
+  // Update individual item
   const handleItemChange = (index: number, field: string, value: string | number) => {
     const newItems = [...items];
     if (field === "description") newItems[index].description = String(value);
-    if (field === "quantity") newItems[index].quantity = Number(value);
-    if (field === "unitPrice") newItems[index].unitPrice = Number(value);
+    if (field === "quantity") newItems[index].quantity = Number(value) || 1;
+    if (field === "unitPrice") newItems[index].unitPrice = Number(value) || 0;
     newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
     setItems(newItems);
   };
 
-  // ➕ Add new item
-  const addItem = () => {
-    setItems([...items, { description: "", quantity: 1, unitPrice: 0, subtotal: 0 }]);
-  };
+  const addItem = () => setItems([...items, { description: "", quantity: 1, unitPrice: 0, subtotal: 0 }]);
+  const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index));
 
-  // ❌ Remove item
-  const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
-  };
-
-  // 🏨 On selecting booking → add room automatically
-  const handleBookingSelect = (id: number) => {
-    setBookingId(id);
-    const selected = filtered.find((b) => b.id === id);
-    if (!selected) return;
-
-    const room = rooms.find((r) => r.id === Number(selected.roomId));
-    if (!room) {
-      alert("Room details not found for selected booking");
-      return;
-    }
-
-    const start = new Date(selected.startDate);
-    const end = new Date(selected.endDate);
-    const diffDays = Math.max(
-      1,
-      Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-    );
-
-    const newItem: InvoiceItem = {
-      description: `Room: ${room.name}`,
-      quantity: diffDays,
-      unitPrice: room.price,
-      subtotal: diffDays * room.price,
-    };
-
-    setItems([newItem]);
-  };
-
-  // 💾 Submit Invoice
+  // Submit invoice
   const handleSubmit = async () => {
     if (!token) return alert("Not authenticated");
     if (!bookingId) return alert("Please select a booking");
@@ -677,76 +192,49 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
       const newInvoice = res.data;
       const newInvoiceId = invoiceId || newInvoice.invoiceId;
       alert(`Invoice ${invoiceId ? "updated" : "created"} successfully!`);
-      navigate(`/invoice/preview/${newInvoiceId}`, {
-        state: { invoice: newInvoice },
-      });
+      navigate(`/invoice/preview/${newInvoiceId}`, { state: { invoice: newInvoice } });
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.detail || "Error creating/updating invoice");
     }
   };
 
-  // 🖥️ UI
   return (
     <Layout>
       <div className="invoice-form-container">
         <h2>{invoiceId ? "Edit Invoice" : "Create Invoice"}</h2>
 
-        {/* Filters */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-          <div>
-            <label>From: </label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>To: </label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-          <button onClick={handleFilter} style={{ marginTop:"22px" }}>
-            Apply Filter
-          </button>
-        </div>
-
         {/* Booking Dropdown */}
         <div className="form-group">
           <label>Booking:</label>
           <select
-            disabled={filtered.length === 0}
-            value={bookingId}
+            value={bookingId || ""}
             onChange={(e) => handleBookingSelect(Number(e.target.value))}
           >
-            <option value={0}>-- Select Booking --</option>
-            {filtered.map((b) => (
+            <option value="">-- Select Booking --</option>
+            {bookings.map((b) => (
               <option key={b.id} value={b.id}>
-                {`Booking #${b.id} | ${b.status} | ${b.startDate} → ${b.endDate}`}
+                {`Booking #${b.id} | ${b.status} | Room: ${b.room?.name || b.room || "N/A"} | ${b.startDate} → ${b.endDate}`}
               </option>
             ))}
           </select>
-          {!invoiceId && (
-            <div className="form-group">
-              <label>Invoice Number:</label>
-              <input type="text" value={nextInvoiceNumber} disabled />
-            </div>
-          )}
+        </div>
 
-          {filtered.length === 0 && (
-            <p style={{ color: "#888" }}>No bookings found — check filter or token</p>
-          )}
+        {/* Invoice Number */}
+        <div className="form-group">
+          <label>Invoice Number:</label>
+          <input
+            type="text"
+            value={invoiceId ? stateInvoice?.invoiceNumber : nextInvoiceNumber}
+            disabled
+          />
         </div>
 
         {/* Items Table */}
         <h3>Items</h3>
         <table className="invoice-items-table">
           <thead>
-            <tr style={{ color: "#667eea" }}>
+            <tr>
               <th>Description</th>
               <th>Qty</th>
               <th>Unit Price</th>
@@ -761,9 +249,7 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
                   <input
                     type="text"
                     value={item.description}
-                    onChange={(e) =>
-                      handleItemChange(idx, "description", e.target.value)
-                    }
+                    onChange={(e) => handleItemChange(idx, "description", e.target.value)}
                   />
                 </td>
                 <td>
@@ -771,9 +257,7 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
                     type="number"
                     min={1}
                     value={item.quantity}
-                    onChange={(e) =>
-                      handleItemChange(idx, "quantity", e.target.value)
-                    }
+                    onChange={(e) => handleItemChange(idx, "quantity", e.target.value)}
                   />
                 </td>
                 <td>
@@ -781,9 +265,7 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
                     type="number"
                     min={0}
                     value={item.unitPrice}
-                    onChange={(e) =>
-                      handleItemChange(idx, "unitPrice", e.target.value)
-                    }
+                    onChange={(e) => handleItemChange(idx, "unitPrice", e.target.value)}
                   />
                 </td>
                 <td>{item.subtotal}</td>
@@ -794,37 +276,22 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
             ))}
           </tbody>
         </table>
-
         <button onClick={addItem}>Add Item</button>
 
         {/* Tax & Discount */}
         <div className="form-group">
-          <label>Tax:</label>
-          <input
-            type="number"
-            min={0}
-            value={tax}
-            onChange={(e) => setTax(Number(e.target.value))}
-          />
+          <label>Tax (%):</label>
+          <input type="number" value={tax} onChange={(e) => setTax(Number(e.target.value))} />
         </div>
         <div className="form-group">
           <label>Discount:</label>
-          <input
-            type="number"
-            min={0}
-            value={discount}
-            onChange={(e) => setDiscount(Number(e.target.value))}
-          />
+          <input type="number" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
         </div>
 
         {invoiceId && (
           <div className="form-group">
             <label>Reason for Edit:</label>
-            <input
-              type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
+            <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} />
           </div>
         )}
 
@@ -832,28 +299,6 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
         <button className="submit-btn" onClick={handleSubmit}>
           {invoiceId ? "Update" : "Create"} Invoice
         </button>
-
-        {invoiceSnapshot && (
-          <div className="invoice-preview">
-            <h3>Invoice Preview</h3>
-            <p><b>Customer:</b> {invoiceSnapshot.customerName}</p>
-            <p><b>Mobile:</b> {invoiceSnapshot.mobile}</p>
-            <p>
-              <b>Room:</b> {invoiceSnapshot.room} ({invoiceSnapshot.roomNo})
-            </p>
-            <p>
-              <b>Check-in:</b> {invoiceSnapshot.checkInDate}{" "}
-              {invoiceSnapshot.checkInTime}
-            </p>
-            <p>
-              <b>Check-out:</b> {invoiceSnapshot.checkOutDate}{" "}
-              {invoiceSnapshot.checkOutTime}
-            </p>
-            <p>
-              <b>Final Amount:</b> ₹{invoiceSnapshot.finalAmount}
-            </p>
-          </div>
-        )}
       </div>
     </Layout>
   );

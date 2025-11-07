@@ -52,10 +52,12 @@ export default function DashboardLayout({ children }: LayoutProps) {
   // Logout
   const handleLogout = () => {
     setToken(null);
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token"); // ✅ correct key
+    localStorage.removeItem("role");  // ✅ also remove role if stored
     sessionStorage.clear();
     navigate("/login", { replace: true });
   };
+
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -97,7 +99,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
 
             <li>
               <NavLink to="/reports"
-               className={({ isActive }) => isActive ? "active" : ""}>
+                className={({ isActive }) => isActive ? "active" : ""}>
                 <PresentationChartBarIcon className="icon" /> Reports
               </NavLink>
             </li>
@@ -105,6 +107,14 @@ export default function DashboardLayout({ children }: LayoutProps) {
             <li>
               <NavLink to="/invoices" className={({ isActive }) => isActive ? "active" : ""}>
                 <ClipboardDocumentIcon className="icon" /> Invoices
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/cash-closing-report"
+                className={({ isActive }) => isActive ? "active" : ""}
+              >
+                <PresentationChartBarIcon className="icon" /> Cash Closing Report
               </NavLink>
             </li>
 
@@ -119,6 +129,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <ArchiveBoxIcon className="icon" /> Invoice Reports
               </NavLink>
             </li> */}
+
 
             <li>
               <NavLink to="/invoices/dashboard" className={({ isActive }) => isActive ? "active" : ""}>

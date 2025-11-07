@@ -13,7 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [popMessage, setPopMessage] = useState<string | null>(null);
   const [popType, setPopType] = useState<"success" | "failed" | "info">("info");
-  const { setToken ,setRole } = useAuth();
+  const { setToken ,setRole ,setUser} = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,8 +31,10 @@ export default function Login() {
 
       setToken(res.data.access_token);
       setRole(res.data.role);
+      setUser(res.data.user);
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       setPopMessage("Login successful!");
       setPopType("success"); // mark as success
     } catch (err: unknown) {

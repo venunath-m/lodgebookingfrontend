@@ -22,107 +22,122 @@ interface Props {
 }
 
 export default function CashClosingDialog({ isOpen, onClose, onSuccess }: Props) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
-  // System totals (from invoices)
-  const [cash, setCash] = useState<number>(0);
-  const [online, setOnline] = useState<number>(0);
-  const [upi, setUpi] = useState<number>(0);
-  const [card, setCard] = useState<number>(0);
+  // Payment totals
+  const [cash, setCash] = useState(0);
+  const [upi, setUpi] = useState(0);
+  const [card, setCard] = useState(0);
+  const [online, setOnline] = useState(0);
 
-  // Denominations (structured)
-  const [notes, setNotes] = useState<DenominationMap>({    
-    "500": 0,
-    "200": 0,
-    "100": 0,
-    "50": 0,
-    "20": 0,
-    "10": 0,
-    "5": 0,
-    "2": 0,
-    "1": 0,
+  const [notes, setNotes] = useState<DenominationMap>({
+    "500": 0, "200": 0, "100": 0, "50": 0, "20": 0, "10": 0, "5": 0, "2": 0, "1": 0
   });
 
-  const [systemAmount, setSystemAmount] = useState<number>(0);
-  const [difference, setDifference] = useState<number>(0);
-  const [invoices, setInvoices] = useState<any[]>([]); // day's invoice list (for report summary)
+  const [systemAmount, setSystemAmount] = useState(0);
+  const [difference, setDifference] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // fetch invoices to compute system totals and show report table
-  useEffect(() => {
-    if (!token) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await API.get("/invoices", {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
+  // Closing date picker
+  const [closingDate, setClosingDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
 
-        const items = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
-        if (cancelled) return;
-
-        setInvoices(items);
-
-        const getSum = (method: string) =>
-          items
-            .filter((inv: any) => (inv.paymentMethod ?? "").toLowerCase() === method)
-            .reduce((sum: number, inv: any) => sum + (Number(inv.finalAmount) || 0), 0);
-
-        setCash(getSum("cash"));
-        setOnline(getSum("online"));
-        setUpi(getSum("upi"));
-        setCard(getSum("card"));
-      } catch (err) {
-        console.error("Error fetching invoices:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token]);
-
-  // compute countedCash (from denominations), systemAmount and difference
+  // Calculate counted cash from denominations
   const countedCash = Object.entries(notes).reduce(
     (sum, [note, cnt]) => sum + Number(note) * Number(cnt),
     0
   );
 
+  // Fetch invoices and calculate totals by date
   useEffect(() => {
-    const totalSys = cash + online + upi + card;
+    if (!token) return;
+
+    let cancelled = false;
+
+    const fetchInvoices = async () => {
+      setLoading(true);
+      try {
+        const res = await API.get("/invoices", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (cancelled) return;
+
+        const invoices: any[] = res.data || [];
+
+        // Filter invoices by selected date (local date)
+        const filtered = invoices.filter(inv => {
+          const invDate = new Date(inv.createdAt);
+          const invLocalDate = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2,'0')}-${String(invDate.getDate()).padStart(2,'0')}`;
+          return invLocalDate === closingDate;
+        });
+
+        // Compute totals by payment method
+        let cashTotal = 0, upiTotal = 0, cardTotal = 0, onlineTotal = 0;
+
+        filtered.forEach(inv => {
+          switch (inv.paymentMethod?.toUpperCase()) {
+            case "CASH": cashTotal += inv.finalAmount; break;
+            case "UPI": upiTotal += inv.finalAmount; break;
+            case "CARD": cardTotal += inv.finalAmount; break;
+            case "ONLINE": onlineTotal += inv.finalAmount; break;
+            default: cashTotal += inv.finalAmount; // assume cash if null
+          }
+        });
+
+        setCash(cashTotal);
+        setUpi(upiTotal);
+        setCard(cardTotal);
+        setOnline(onlineTotal);
+      } catch (err) {
+        console.error(err);
+        alert("Error fetching invoices");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchInvoices();
+    return () => { cancelled = true; };
+  }, [token, closingDate]);
+
+  // Update systemAmount and difference
+  useEffect(() => {
+    const totalSys = cash + upi + card + online;
     setSystemAmount(totalSys);
     setDifference(countedCash - totalSys);
-  }, [cash, online, upi, card, countedCash]);
+  }, [cash, upi, card, online, countedCash]);
 
-  // safe update for denominations: key typed as keyof DenominationMap
   const updateNote = (key: keyof DenominationMap, value: number) => {
-    setNotes((prev) => ({ ...prev, [key]: Number(value) || 0 }));
+    setNotes(prev => ({ ...prev, [key]: Number(value) || 0 }));
   };
 
   const handleSubmit = async () => {
+    if (!user || !token) {
+      alert("Not authenticated. Please login and try again.");
+      return;
+    }
+
     try {
-      await API.post(
-        "/cashclosing",
-        {
-          denominations: notes, // breakdown
-          cashAmount: cash,
-          onlineAmount: online,
-          upiAmount: upi,
-          cardAmount: card,
-          systemAmount,
-          difference,
-          cashCounted: countedCash,
-        },
-        { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
-      );
+      await API.post("/cashclosing", {
+        userId: user.id,
+        denominations: notes,
+        cashAmount: cash,
+        upiAmount: upi,
+        cardAmount: card,
+        onlineAmount: online,
+        systemAmount,
+        difference,
+        cashCounted: countedCash,
+        closingDate
+      }, { headers: { Authorization: `Bearer ${token}` } });
+
       alert("Cash Closing Saved ✅");
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error("Error saving cash closing:", err);
+      console.error(err);
       alert(err?.response?.data?.detail ?? "Error saving cash closing");
     }
   };
@@ -132,35 +147,40 @@ export default function CashClosingDialog({ isOpen, onClose, onSuccess }: Props)
   return (
     <div className="dialog-overlay" role="dialog" aria-modal>
       <div className="dialog-box">
-        <h2 className="dialog-title" style={{color:"#667eea"}}>Cash Closing</h2>
+        <h2 className="dialog-title" style={{ color: "#667eea" }}>Cash Closing</h2>
 
         <div className="dialog-content">
-          {loading ? (
-            <div style={{ marginBottom: 12 }}>Loading transactions...</div>
-          ) : null}
+          {loading && <div style={{ marginBottom: 12 }}>Loading system totals...</div>}
 
           <div className="summary-row">
-            <div>Cash Payments: <strong>₹ {cash.toFixed(2)}</strong></div>
-            <div>Online Payments: <strong>₹ {online.toFixed(2)}</strong></div>
-            <div>UPI Payments: <strong>₹ {upi.toFixed(2)}</strong></div>
-            <div>Card Payments: <strong>₹ {card.toFixed(2)}</strong></div>
+            <div>User: <strong>{user?.name ?? "Unknown"}</strong></div>
+            <div>
+              Closing Date:{" "}
+              <input
+                type="date"
+                value={closingDate}
+                onChange={e => setClosingDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="summary-row">
+            <div>Cash: <strong>₹ {cash.toFixed(2)}</strong></div>
+            <div>UPI: <strong>₹ {upi.toFixed(2)}</strong></div>
+            <div>Card: <strong>₹ {card.toFixed(2)}</strong></div>
+            <div>Online: <strong>₹ {online.toFixed(2)}</strong></div>
           </div>
 
           <hr />
 
-          {/* Denomination breakdown */}
           <h3 className="report-title">Denomination Count</h3>
           <div className="denomination-table">
             <table>
               <thead>
-                <tr>
-                  <th>Note</th>
-                  <th>Count</th>
-                  <th>Total</th>
-                </tr>
+                <tr><th>Note</th><th>Count</th><th>Total</th></tr>
               </thead>
               <tbody>
-                {(Object.keys(notes) as Array<keyof DenominationMap>).map((note) => (
+                {(Object.keys(notes) as Array<keyof DenominationMap>).map(note => (
                   <tr key={note}>
                     <td>₹ {note}</td>
                     <td>
@@ -169,7 +189,7 @@ export default function CashClosingDialog({ isOpen, onClose, onSuccess }: Props)
                         type="number"
                         min={0}
                         value={notes[note]}
-                        onChange={(e) => updateNote(note, Number(e.target.value))}
+                        onChange={e => updateNote(note, Number(e.target.value))}
                       />
                     </td>
                     <td>₹ {(Number(note) * notes[note]).toLocaleString()}</td>
@@ -184,43 +204,11 @@ export default function CashClosingDialog({ isOpen, onClose, onSuccess }: Props)
             </table>
           </div>
 
-          {/* System & Difference */}
           <div style={{ marginTop: 8 }}>
             <div>System Amount: <strong>₹ {systemAmount.toFixed(2)}</strong></div>
             <div className={`difference ${difference !== 0 ? "bad" : "good"}`}>
               Difference: <strong>₹ {difference.toFixed(2)}</strong>
             </div>
-          </div>
-
-          <h3 className="report-title" style={{ marginTop: 12 }}>Report Summary (Today)</h3>
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Room</th>
-                  <th>Payment</th>
-                  <th className="right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.length === 0 && (
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: "center", padding: 10 }}>
-                      No transactions found
-                    </td>
-                  </tr>
-                )}
-                {invoices.map((inv, i) => (
-                  <tr key={i}>
-                    <td>{inv.customerName ?? "-"}</td>
-                    <td>{inv.room ?? "-"}</td>
-                    <td>{(inv.paymentMethod ?? "").toString()}</td>
-                    <td className="right">₹ {(Number(inv.finalAmount) || 0).toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
           <div className="btn-row">

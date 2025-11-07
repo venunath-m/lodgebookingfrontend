@@ -51,7 +51,12 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   const [safe, setSafe] = useState(initialData?.safe || false);
   const [uploadedDocument, setUploadedDocument] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+  // ✅ Convert separate Date + Time from backend → datetime-local string
+  const toDateTimeInput = (date?: string, time?: string) => {
+    if (!date || !time) return "";
+    // Example: "2025-02-08" + "14:30:00" → "2025-02-08T14:30"
+    return `${date}T${time.slice(0, 5)}`;
+  };
   // Fetch rooms from API
   const fetchRooms = async () => {
     try {
@@ -61,14 +66,36 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
       const data = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data.items)
-        ? res.data.items
-        : [];
+          ? res.data.items
+          : [];
       setRooms(data);
     } catch (err) {
       console.error("Error fetching rooms:", err);
       setRooms([]);
     }
   };
+  // ✅ Fetch Next Booking Number when opening dialog (only for NEW booking)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (initialData && initialData.bookingNumber) return; // don't overwrite existing
+
+    const fetchNextBookingNumber = async () => {
+      try {
+        const res = await API.get("/bookings/next-number", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const nextNo = res.data?.nextBookingNumber?.trim() || "";
+        setBookingNumber(nextNo);
+
+      } catch (err) {
+        console.error("Error fetching next booking number:", err);
+        setBookingNumber("BKG-ERROR");
+      }
+    };
+
+    fetchNextBookingNumber();
+  }, [isOpen, token, initialData]);
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -84,11 +111,26 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     setTotalNoPeople(initialData?.totalNoPeople || 0);
     setNumberOfNights(initialData?.numberOfNights || 0);
 
+    // ✅ Do NOT override auto-generated booking number
+    if (initialData?.bookingNumber) {
+      setBookingNumber(initialData.bookingNumber);
+    }
+
     setName(initialData?.name || "");
     setMobile(initialData?.mobile || "");
     setAddress(initialData?.address || "");
-    setCheckinDateTime(initialData?.checkinDateTime || nowISO);
-    setCheckoutDateTime(initialData?.checkoutDateTime || nowISO);
+    setCheckinDateTime(
+      initialData
+        ? toDateTimeInput(initialData.checkInDate, initialData.checkInTime)
+        : nowISO
+    );
+
+    setCheckoutDateTime(
+      initialData
+        ? toDateTimeInput(initialData.checkOutDate, initialData.checkOutTime)
+        : nowISO
+    );
+
     setCustomerGstNo(initialData?.customerGstNo || "");
     setBookingSource(initialData?.bookingSource || "Walk In");
     setPaymentMethod(initialData?.paymentMethod || "");
@@ -98,6 +140,8 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
     fetchRooms();
   }, [isOpen, initialData]);
+
+
 
   // Auto total people
   useEffect(() => {
@@ -127,6 +171,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     }
   }, [roomId, rooms]);
 
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setUploadedDocument(file);
@@ -138,34 +183,31 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   };
 
   const handleConfirm = () => {
-    if (!name || !mobile || !startDate || !endDate || !roomId) {
-      alert("Please fill required fields: Name, Mobile, Start Date, End Date, Room");
+    // Validate required fields
+    if (!name || !mobile || !checkinDateTime || !checkoutDateTime || !roomId) {
+      alert("Please fill required fields: Name, Mobile, Check-in & Check-out Time, Room");
       return;
     }
 
     const now = new Date().toISOString().slice(0, 16);
 
     const formatDateTime = (dtStr: string) => {
-      let dt: Date;
-      if (!dtStr) {
-        dt = new Date();
-      } else {
-        dt = new Date(dtStr);
-      }
-
-      if (isNaN(dt.getTime())) dt = new Date();
-
+      const dt = new Date(dtStr || now);
       return {
         date: dt.toISOString().split("T")[0],
         time: dt.toTimeString().split(" ")[0],
       };
     };
 
-    const { date: checkInDate, time: checkInTime } = formatDateTime(checkinDateTime || now);
-    const { date: checkOutDate, time: checkOutTime } = formatDateTime(checkoutDateTime || now);
+    const { date: checkInDate, time: checkInTime } = formatDateTime(checkinDateTime);
+    const { date: checkOutDate, time: checkOutTime } = formatDateTime(checkoutDateTime);
+
+    // ✅ Derive start and end date automatically
+    const startDate = checkInDate;
+    const endDate = checkOutDate;
 
     onConfirm({
-      bookingNumber, 
+      bookingNumber,
       roomId,
       roomNo,
       startDate,
@@ -191,6 +233,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     onClose();
   };
 
+
   if (!isOpen) return null;
   const modalRoot = document.getElementById("modal-root");
   if (!modalRoot) return null;
@@ -204,7 +247,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     if (!query) return true;
     return (
       r.name?.toLowerCase().includes(query) ||
-      r.type?.toLowerCase().includes(query) 
+      r.type?.toLowerCase().includes(query)
     );
   });
 
@@ -246,20 +289,15 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
           disabled
         />
 
+
         <label style={labelStyle}>Customer Name *</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} disabled={info}className="w-full mb-3 border rounded px-2 py-1" />
+        <input value={name} onChange={(e) => setName(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Mobile Number *</label>
         <input value={mobile} onChange={(e) => setMobile(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Customer Address</label>
         <textarea value={address} onChange={(e) => setAddress(e.target.value)} disabled={info} style={{ width: "100%" }} rows={3} />
-
-        <label style={labelStyle}>Start Date *</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
-
-        <label style={labelStyle}>End Date *</label>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={info}className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Check-in Date & Time</label>
         <input type="datetime-local" value={checkinDateTime} onChange={(e) => setCheckinDateTime(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
@@ -287,7 +325,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
         <div style={radioContainerStyle}>
           {["Cash", "UPI", "Online"].map((mode) => (
             <label key={mode} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <input type="radio" name="paymentMode" value={mode} checked={paymentMethod === mode} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: 13, height: 13 }} disabled={info}/>
+              <input type="radio" name="paymentMode" value={mode} checked={paymentMethod === mode} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: 13, height: 13 }} disabled={info} />
               {mode}
             </label>
           ))}
@@ -306,7 +344,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
         {/* Safe checkbox */}
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, marginTop: 12 }}>
-          <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} style={{ width: 16, height: 16 }} disabled={info}/>
+          <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} style={{ width: 16, height: 16 }} disabled={info} />
           <span>Safe Booking</span>
         </label>
 
@@ -322,13 +360,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-6">
-          <button  onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">
+          <button onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">
             Cancel
           </button>
-          {!info && 
-          <button disabled={info} onClick={handleConfirm} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            Confirm
-          </button>}
+          {!info &&
+            <button disabled={info} onClick={handleConfirm} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Confirm
+            </button>}
         </div>
       </div>
     </div>,

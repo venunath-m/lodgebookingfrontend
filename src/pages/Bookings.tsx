@@ -24,20 +24,29 @@ export default function Bookings() {
   const [rooms, setRooms] = useState<Room[]>([]);
 
   // Fetch bookings
-  const fetchBookings = async () => {
-    try {
-      const res = await API.get("/bookings/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data: Booking[] = Array.isArray(res.data.items) ? res.data.items : [];
-      setBookings(data);
-      setFiltered(data);
-    } catch (err) {
-      console.error(err);
-      setBookings([]);
-      setFiltered([]);
-    }
-  };
+ const fetchBookings = async () => {
+  try {
+    const res = await API.get("/bookings/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data: Booking[] = Array.isArray(res.data) ? res.data : [];
+
+    const normalized = data.map((b) => ({
+      ...b,
+      roomId: b.room?.id ?? b.roomId ?? null,
+      services: b.services ?? [],
+    }));
+
+    setBookings(normalized);
+    setFiltered(normalized);
+  } catch (err) {
+    console.error(err);
+    setBookings([]);
+    setFiltered([]);
+  }
+};
+
 
   const fetchRooms = async () => {
     try {
@@ -135,7 +144,7 @@ export default function Bookings() {
               <label>To: </label>
               <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
             </div>
-            <button onClick={handleFilter} style={{marginTop:"22px" }}>
+            <button onClick={handleFilter} style={{ marginTop: "22px" }}>
               Apply
             </button>
           </div>
@@ -162,25 +171,25 @@ export default function Bookings() {
                   </tr>
                 ) : (
                   displayed.map((b) => {
-                    const room = rooms.find((r) => r.id === b.roomId);
+                    const room = rooms.find((r) => r.id === b.room?.id);
                     return (
                       <tr key={b.id} className="hover:bg-gray-50">
-                        <td className="p-2 border">{b.id}</td>
-                        <td className="p-2 border">{room?.name || "N/A"}</td>
+                        <td className="p-2 border">{b.bookingNumber}</td>
+                        <td className="p-2 border">{b.room?.name || "N/A"}</td>
                         <td className="p-2 border">{b.startDate}</td>
                         <td className="p-2 border">{b.endDate}</td>
                         <td className="p-2 border">{b.status}</td>
                         <td className="p-2 border">{b.males ?? 0}</td>
                         <td className="p-2 border">{b.females ?? 0}</td>
-                        <td className="p-2 border" style={{ display: "flex", gap: "8px", justifyContent: "flex-start" }}>
-                          <button onClick={() => handleViewBooking(b)} className="bg-blue-600 text-white px-2 py-1 rounded text-sm"style={{background:"#16a34a",color:"#fff"}}>View</button>
-                          <button onClick={() => handleEditBooking(b)} className="bg-green-600 text-white px-2 py-1 rounded text-sm" style={{background:"#2563eb",color:"#fff"}}>Edit</button>
+                        <td className="p-2 border" style={{ display: "flex", gap: "8px" }}>
+                          <button onClick={() => handleViewBooking(b)} className="bg-green-600 text-white px-2 py-1 rounded text-sm">View</button>
+                          <button onClick={() => handleEditBooking(b)} className="bg-blue-600 text-white px-2 py-1 rounded text-sm">Edit</button>
                           {b.status !== "cancelled" && (
-                            <button onClick={() => handleCancelBooking(b.id)} className="bg-red-600 text-white px-2 py-1 rounded text-sm"style={{background:"#dc2626",color:"#fff"}}>Cancel</button>
+                            <button onClick={() => handleCancelBooking(b.id)} className="bg-red-600 text-white px-2 py-1 rounded text-sm">Cancel</button>
                           )}
-                          
                         </td>
                       </tr>
+
                     );
                   })
                 )}
@@ -190,7 +199,7 @@ export default function Bookings() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-4 mt-4"style={{marginTop:"25px"}}>
+            <div className="flex justify-center gap-4 mt-4" style={{ marginTop: "25px" }}>
               <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded">⬅ Prev</button>
               <span className="px-2 py-1">Page {currentPage} of {totalPages}</span>
               <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded">Next ➡</button>
@@ -224,7 +233,7 @@ export default function Bookings() {
                 checkOutDate: selectedBooking.checkOutDate || "",
                 checkOutTime: selectedBooking.checkOutTime || "",
               }}
-              rooms={rooms}
+             token={token || ""}       
             />
           )}
 
@@ -233,7 +242,7 @@ export default function Bookings() {
             <BookingDialog
               isOpen={openViewDialog}
               onClose={() => setOpenViewDialog(false)}
-              onConfirm={() => {}}
+              onConfirm={() => { }}
               initialData={{
                 roomId: selectedBooking.roomId,
                 startDate: selectedBooking.startDate,
@@ -255,7 +264,7 @@ export default function Bookings() {
                 checkOutDate: selectedBooking.checkOutDate || "",
                 checkOutTime: selectedBooking.checkOutTime || "",
               }}
-              rooms={rooms}
+               token={token || ""}
               info={true}
             />
           )}
@@ -265,4 +274,3 @@ export default function Bookings() {
   );
 }
 
-          
