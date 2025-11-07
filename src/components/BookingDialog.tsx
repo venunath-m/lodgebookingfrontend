@@ -13,6 +13,7 @@ interface BookingDialogProps {
   onConfirm: (data: any) => void;
   initialData?: any;
   token: string;
+  info?: boolean;
 }
 
 const BookingDialog: React.FC<BookingDialogProps> = ({
@@ -21,6 +22,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   onConfirm,
   initialData,
   token,
+  info
 }) => {
   const nowISO = new Date().toISOString().slice(0, 16);
 
@@ -224,6 +226,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
           value={roomId}
           onChange={(e) => setRoomId(Number(e.target.value))}
           className="w-full mb-3 border rounded px-2 py-1"
+          disabled={info}
         >
           <option value={0}>Select a room</option>
           {filteredRooms.map((r) => (
@@ -240,50 +243,51 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
           value={bookingNumber}
           onChange={(e) => setBookingNumber(e.target.value)}
           className="w-full mb-3 border rounded px-2 py-1"
+          disabled
         />
 
         <label style={labelStyle}>Customer Name *</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input value={name} onChange={(e) => setName(e.target.value)} disabled={info}className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Mobile Number *</label>
-        <input value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input value={mobile} onChange={(e) => setMobile(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Customer Address</label>
-        <textarea value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: "100%" }} rows={3} />
+        <textarea value={address} onChange={(e) => setAddress(e.target.value)} disabled={info} style={{ width: "100%" }} rows={3} />
 
         <label style={labelStyle}>Start Date *</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>End Date *</label>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={info}className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Check-in Date & Time</label>
-        <input type="datetime-local" value={checkinDateTime} onChange={(e) => setCheckinDateTime(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="datetime-local" value={checkinDateTime} onChange={(e) => setCheckinDateTime(e.target.value)} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Check-out Date & Time</label>
-        <input type="datetime-local" value={checkoutDateTime} onChange={(e) => setCheckoutDateTime(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="datetime-local" disabled={info} value={checkoutDateTime} onChange={(e) => setCheckoutDateTime(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>No. of Males</label>
-        <input type="number" value={males} min={0} onChange={(e) => setMales(Number(e.target.value))} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="number" value={males} min={0} onChange={(e) => setMales(Number(e.target.value))} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>No. of Females</label>
-        <input type="number" value={females} min={0} onChange={(e) => setFemales(Number(e.target.value))} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="number" value={females} min={0} onChange={(e) => setFemales(Number(e.target.value))} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
 
         <label style={labelStyle}>Total No. of People</label>
         <input type="number" value={totalNoPeople} disabled className="w-full mb-3 border rounded px-2 py-1 bg-gray-100" />
 
         <label style={labelStyle}>Number of Nights</label>
-        <input type="text" value={numberOfNights} readOnly className="w-full mb-3 border rounded px-2 py-1 bg-gray-100" />
+        <input type="text" value={numberOfNights} disabled className="w-full mb-3 border rounded px-2 py-1 bg-gray-100" />
 
         <label style={labelStyle}>Customer GST No</label>
-        <input value={customerGstNo} onChange={(e) => setCustomerGstNo(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
+        <input value={customerGstNo} disabled={info} onChange={(e) => setCustomerGstNo(e.target.value)} className="w-full mb-3 border rounded px-2 py-1" />
 
         {/* Payment Mode */}
         <label style={labelStyle}>Payment Mode (optional)</label>
         <div style={radioContainerStyle}>
           {["Cash", "UPI", "Online"].map((mode) => (
             <label key={mode} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <input type="radio" name="paymentMode" value={mode} checked={paymentMethod === mode} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: 13, height: 13 }} />
+              <input type="radio" name="paymentMode" value={mode} checked={paymentMethod === mode} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: 13, height: 13 }} disabled={info}/>
               {mode}
             </label>
           ))}
@@ -294,7 +298,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
         <div style={radioContainerStyle}>
           {["Online", "Walk In"].map((source) => (
             <label key={source} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <input type="radio" name="bookingSource" value={source} checked={bookingSource === source} onChange={(e) => setBookingSource(e.target.value)} style={{ width: 13, height: 13 }} />
+              <input type="radio" name="bookingSource" value={source} checked={bookingSource === source} onChange={(e) => setBookingSource(e.target.value)} style={{ width: 13, height: 13 }} disabled={info} />
               {source}
             </label>
           ))}
@@ -302,13 +306,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
         {/* Safe checkbox */}
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, marginTop: 12 }}>
-          <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} style={{ width: 16, height: 16 }} />
+          <input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} style={{ width: 16, height: 16 }} disabled={info}/>
           <span>Safe Booking</span>
         </label>
 
         {/* Upload Document */}
         <label style={labelStyle}>Upload Document (optional)</label>
-        <input type="file" accept="image/*,.pdf" onChange={handleFileChange} className="w-full mb-3 border rounded px-2 py-1" />
+        <input type="file" accept="image/*,.pdf" onChange={handleFileChange} disabled={info} className="w-full mb-3 border rounded px-2 py-1" />
         {previewUrl && (
           <div className="mt-3">
             <p className="text-sm text-gray-600 mb-1">Preview:</p>
@@ -318,12 +322,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">
+          <button  onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">
             Cancel
           </button>
-          <button onClick={handleConfirm} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          {!info && 
+          <button disabled={info} onClick={handleConfirm} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             Confirm
-          </button>
+          </button>}
         </div>
       </div>
     </div>,

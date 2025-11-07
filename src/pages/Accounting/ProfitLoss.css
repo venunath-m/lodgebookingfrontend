@@ -1,0 +1,106 @@
+.profitloss-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.profitloss-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.profitloss-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .profitloss-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.profitloss-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.profitloss-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profitloss-card-header {
+  background-color: #f1f5f9;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profitloss-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.profitloss-card-content {
+  padding: 16px;
+}
+
+.profitloss-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+}
+
+.profitloss-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px;
+}
+
+.profitloss-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.profitloss-total {
+  text-align: right;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-top: 8px;
+}
+
+.profitloss-result-card {
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.profitloss-result {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.profitloss-profit {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.profitloss-loss {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.profitloss-neutral {
+  color: #6b7280;
+  font-weight: 700;
+}

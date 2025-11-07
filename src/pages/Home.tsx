@@ -196,7 +196,7 @@ export default function Home() {
                 onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#15803d")}
                 onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#16a34a")}
               >
-                Cash Closing
+                Day Closing
               </button>
             </div>
 
@@ -221,7 +221,7 @@ export default function Home() {
               </div>
 
               {/* ✅ Pagination */}
-              <div className="flex justify-center mt-6 gap-2">
+              <div className="flex justify-center mt-6 gap-2"style={{marginTop:"25px"}}>
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
@@ -266,6 +266,7 @@ export default function Home() {
           isOpen={cashDialogOpen}
           onClose={() => setCashDialogOpen(false)}
           onSuccess={() => navigate("/cash-closing-report")}
+          token={token}
         />
 
       </Layout>

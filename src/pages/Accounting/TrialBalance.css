@@ -1,0 +1,151 @@
+/* ----------------------------
+   Trial Balance Page Styles
+----------------------------- */
+
+.trial-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #eef2ff, #ffffff);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ---- Back Link ---- */
+.trial-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #4f46e5;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.trial-back-link:hover {
+  color: #3730a3;
+  text-decoration: underline;
+}
+
+/* ---- Title ---- */
+.trial-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+/* ---- Card ---- */
+.trial-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.trial-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.trial-card-content {
+  padding: 1.5rem;
+}
+
+/* ---- Table ---- */
+.trial-table-container {
+  overflow-x: auto;
+}
+
+.trial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.trial-table th {
+  background: #eef2ff;
+  color: #374151;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.trial-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+}
+
+.trial-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.trial-table tr:hover {
+  background: #eef2ff;
+  transition: background 0.2s ease;
+}
+
+/* ---- Summary Section ---- */
+.trial-summary {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.trial-summary .totals span {
+  color: #4338ca;
+  font-weight: 700;
+}
+
+.trial-summary .status {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.trial-summary .status.balanced {
+  color: #16a34a; /* green */
+}
+
+.trial-summary .status.unbalanced {
+  color: #dc2626; /* red */
+}
+
+/* ---- Skeleton Loader ---- */
+.trial-skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .trial-summary {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .trial-page {
+    padding: 1.5rem;
+  }
+}

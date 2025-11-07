@@ -125,7 +125,7 @@ const ServicesAdmin: React.FC = () => {
                     <tr key={svc.id}>
                       <td data-label="Name">{svc.name}</td>
                       <td data-label="Price">₹{svc.price}</td>
-                      <td data-label="Actions">
+                      <td data-label="Actions" className="p-2 border" style={{ display: "flex", gap: "8px", justifyContent: "flex-start" }}>
                         <button onClick={() => handleEdit(svc)} className="edit btn">Edit</button>
                         <button onClick={() => handleDelete(svc.id)} className="delete btn">Delete</button>
                       </td>

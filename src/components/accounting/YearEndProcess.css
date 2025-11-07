@@ -1,0 +1,94 @@
+/* Container */
+.yearend-page {
+  padding: 1.5rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Page Title */
+.yearend-page h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b; /* Tailwind slate-800 */
+}
+
+/* Card */
+.yearend-card {
+  background-color: #ffffff;
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Card Title */
+.yearend-card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+}
+
+/* Summary items */
+.yearend-summary p {
+  font-size: 1rem;
+  color: #475569; /* slate-600 */
+  margin-bottom: 0.5rem;
+}
+
+/* Buttons */
+.yearend-button {
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.yearend-button-indigo {
+  background-color: #4f46e5; /* indigo-600 */
+  color: #ffffff;
+}
+
+.yearend-button-indigo:hover {
+  background-color: #4338ca; /* indigo-700 */
+}
+
+.yearend-button-gray {
+  background-color: #6b7280; /* gray-500 */
+  color: #ffffff;
+}
+
+.yearend-button-gray:hover {
+  background-color: #4b5563; /* gray-600 */
+}
+
+/* Disabled state */
+.yearend-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+.yearend-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+/* Message */
+.yearend-message {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.yearend-message-success {
+  color: #16a34a; /* green-600 */
+}
+
+.yearend-message-error {
+  color: #dc2626; /* red-600 */
+}

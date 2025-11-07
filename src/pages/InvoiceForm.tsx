@@ -710,7 +710,7 @@ const InvoiceForm: React.FC<Props> = ({ invoiceId }) => {
               onChange={(e) => setToDate(e.target.value)}
             />
           </div>
-          <button onClick={handleFilter} style={{ padding: "4px 10px" }}>
+          <button onClick={handleFilter} style={{ marginTop:"22px" }}>
             Apply Filter
           </button>
         </div>

@@ -1,0 +1,141 @@
+/* -------------------------
+   Journal Entries Page Styles
+-------------------------- */
+
+.journal-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #eef2ff, #ffffff);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ---- Card ---- */
+.journal-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.journal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.journal-card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+.journal-card-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ---- Form ---- */
+.journal-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.journal-form select,
+.journal-form input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.journal-form select:focus,
+.journal-form input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.journal-form button {
+  background: #6366f1;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.journal-form button:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+/* ---- Table ---- */
+.journal-table-container {
+  overflow-x: auto;
+  padding: 1.5rem;
+}
+
+.journal-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-size: 0.95rem;
+}
+
+.journal-table th {
+  background: #eef2ff;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #374151;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.journal-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+}
+
+.journal-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.journal-table tr:hover {
+  background: #eef2ff;
+  transition: background 0.2s ease;
+}
+
+.journal-table .empty {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 1rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .journal-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .journal-form input,
+  .journal-form select,
+  .journal-form button {
+    width: 100%;
+  }
+}

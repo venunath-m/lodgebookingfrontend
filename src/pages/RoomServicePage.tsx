@@ -176,7 +176,7 @@ const AssignServices: React.FC = () => {
               <option value="">-- Select Service --</option>
               {services.map((svc) => (
                 <option key={svc.id} value={svc.id}>
-                  {svc.name} (${svc.price})
+                  {svc.name} (₹{svc.price})
                 </option>
               ))}
             </select>

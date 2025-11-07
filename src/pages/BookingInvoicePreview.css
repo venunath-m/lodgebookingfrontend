@@ -114,3 +114,28 @@
   .printable-invoice, .printable-invoice * { visibility: visible; }
   .printable-invoice { position: absolute; left: 0; top: 0; width: 100%; }
 }
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Forces equal widths */
+  box-sizing: border-box;
+  display: inline-table;
+}
+
+.invoice-table th,
+.invoice-table td {
+  width: 25%;
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: center;
+  box-sizing: border-box; /* 🔹 Ensures padding+border stay within 25% */
+}
+
+.invoice-table th {
+  font-weight: 600;
+}
+
+.modal-card p {
+  font-size: .9rem !important;
+}
